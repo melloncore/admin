@@ -1,0 +1,45 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-display: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-body: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, monospace;
+
+  /* Editable brand colors (channel triplets), overwritten at runtime from
+     Appearance settings — see src/lib/theme-runtime.ts */
+  --color-primary: 43 58 108;
+  --color-secondary: 255 107 74;
+  --color-tertiary: 20 168 124;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  @apply bg-paper text-ink antialiased;
+}
+
+* {
+  scrollbar-color: #cbd1e0 transparent;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #cbd1e0;
+  border-radius: 999px;
+}
+
+.h-4\.5 {
+  height: 1.125rem;
+}
+.w-4\.5 {
+  width: 1.125rem;
+}
