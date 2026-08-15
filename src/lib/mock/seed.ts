@@ -18,6 +18,9 @@ import type {
   Testimonial,
   TeamMember,
   ValueItem,
+  Book,
+  Decision,
+  RoleClarity,
 } from "@/types";
 import { DEFAULT_APPEARANCE } from "@/lib/theme";
 
@@ -335,7 +338,7 @@ export const seedLeads: Lead[] = [
     name: "Sarah Whitfield",
     email: "sarah@brightpath.io",
     company: "Brightpath",
-    estimatedBudget: "$40,000 – $80,000",
+    estimatedBudget: "$40,000",
     projectDetails: "Rebuilding our customer portal with better reporting and SSO.",
     status: "new",
     submittedAt: new Date(Date.now() - 1000 * 60 * 60 * 3).toISOString(),
@@ -345,7 +348,7 @@ export const seedLeads: Lead[] = [
     name: "Michael Osei",
     email: "michael@fieldwire.co",
     company: "Fieldwire Logistics",
-    estimatedBudget: "$100,000+",
+    estimatedBudget: "$100,000",
     projectDetails: "Full platform migration to AWS with a new event pipeline.",
     status: "contacted",
     submittedAt: new Date(Date.now() - 1000 * 60 * 60 * 26).toISOString(),
@@ -355,7 +358,7 @@ export const seedLeads: Lead[] = [
     name: "Lena Fischer",
     email: "lena@northwind.co",
     company: "Northwind Retail",
-    estimatedBudget: "$15,000 – $30,000",
+    estimatedBudget: "$15,000",
     projectDetails: "A small AI feature to auto-tag support tickets by urgency.",
     status: "qualified",
     submittedAt: new Date(Date.now() - 1000 * 60 * 60 * 72).toISOString(),
@@ -402,6 +405,99 @@ export const seedTasks: Task[] = [
     remark: "Missed two scheduled calls and stopped responding to follow-ups.",
     status: "blacklist",
     updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 200).toISOString(),
+  },
+];
+
+  export const seedBooks: Book[] = [
+    {
+      id: "book_1",
+      customerName: "Sarah Whitfield",
+      item: "Customer Portal Rebuild",
+      description: "Rebuilding our customer portal with better reporting and SSO.",
+      quantity: "1",
+      amount: "$40,000",
+      status: "delivered",
+      direction: "incoming" as Book["direction"],
+      updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 3).toISOString(),
+    },
+    {
+      id: "book_2",
+      customerName: "Michael Osei",
+      item: "AWS Migration",
+      description: "Full platform migration to AWS with a new event pipeline.",
+      quantity: "1",
+      amount: "$100,000+",
+      status: "conflict",
+      direction: "incoming" as Book["direction"],
+      updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 26).toISOString(),
+    },
+    {
+      id: "book_3",
+      customerName: "Lena Fischer",
+      item: "AI Ticket Tagging",
+      description: "A small AI feature to auto-tag support tickets by urgency.",
+      quantity: "1",
+      amount: "$15,000",
+      status: "delivered",
+      direction: "incoming" as Book["direction"],
+      updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 72).toISOString(),
+    },
+  ];
+
+  export const seedDecisions: Decision[] = [
+  {
+    id: "1",
+    director: "yes",
+    manager: "yes",
+    lead: "yes",
+    type: "purchase of 100 macBook pc",
+    status: "done"
+  },
+  {
+    id: "2",
+    director: "no",
+    manager: "yes",
+    lead: "no",
+    type: "payment of goods supply",
+    status: "cancelled"
+  },
+  {
+    id: "3",
+    director: "no",
+    manager: "yes",
+    lead: "yes",
+    type: "payment of network",
+    status: "Pending"
+  },
+];
+
+export const seedRoleClarity: RoleClarity[] = [
+  {
+    id: "1",
+    role: "Sales Associate",
+    department: "Sales",
+    coreResponsibility: "Generate leads and close deals",
+    ReportTo: "Sales Manager",
+    keyKpi: "Number of deals closed",
+    status: "done"
+  },
+  {
+    id: "2",
+    role: "Software Engineer",
+    department: "Engineering",
+    coreResponsibility: "Develop and maintain software applications",
+    ReportTo: "Engineering Manager",
+    keyKpi: "Code quality and performance",
+    status: "done"
+  },
+  {
+    id: "3",
+    role: "Marketing Specialist",
+    department: "Marketing",
+    coreResponsibility: "Create and execute marketing campaigns",
+    ReportTo: "Marketing Manager",
+    keyKpi: "Campaign effectiveness and ROI",
+    status: "done"
   },
 ];
 

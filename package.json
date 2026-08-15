@@ -1,5 +1,5 @@
 {
-  "name": "nexlayer-admin",
+  "name": "mellon-admin",
   "version": "1.0.0",
   "private": true,
   "description": "Admin dashboard for the Nexlayer company portfolio website. Static data layer now, ready to swap for a real API later.",

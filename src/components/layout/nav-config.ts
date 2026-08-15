@@ -11,11 +11,17 @@ import {
   Contact,
   UserPlus,
   ClipboardList,
+  ListTodo,
   PanelBottom,
   Palette,
   BarChart3,
+  Gauge,
+  BookOpen,
+  Target,
+  Workflow,
   Settings,
   type LucideIcon,
+  Goal,
 } from "lucide-react";
 
 export interface NavItem {
@@ -36,6 +42,17 @@ export const NAV_GROUPS: NavGroup[] = [
     items: [
       { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
       { label: "Analytics", href: "/analytics", icon: BarChart3 },
+      { label: "Operation dashboard", href: "/operationDashboard", icon: Gauge },
+    ],
+  },
+  {
+    title: "Operations",
+    items: [
+      { label: "Books", href: "/books", icon: BookOpen },
+      { label: "Role Clarity", href: "/roleClarity", icon: Target },
+      { label: "Decision Approval Flow", href: "/decisionFlow", icon: Workflow },
+      { label: "Daily Ops Tracker", href: "/tasks", icon: ClipboardList },
+      { label: "Target Operation", href: "/target", icon: Goal },
     ],
   },
   {
@@ -53,10 +70,15 @@ export const NAV_GROUPS: NavGroup[] = [
     title: "Engagement",
     items: [
       { label: "Availability", href: "/calendar", icon: CalendarDays },
-      { label: "Messages", href: "/messages", icon: MessagesSquare, badgeKey: "messages" },
+      {
+        label: "Messages",
+        href: "/messages",
+        icon: MessagesSquare,
+        badgeKey: "messages",
+      },
       { label: "Contact info", href: "/contact", icon: Contact },
       { label: "Leads", href: "/leads", icon: UserPlus, badgeKey: "leads" },
-      { label: "Tasks", href: "/tasks", icon: ClipboardList },
+      { label: "Tasks", href: "/tasks", icon: ListTodo },
     ],
   },
   {

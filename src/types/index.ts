@@ -1,9 +1,3 @@
-/**
- * Central type definitions for every editable piece of the public site.
- * These mirror (and extend) the shapes used on the client-facing project so
- * the two stay compatible once a real API sits between them.
- */
-
 export type BrandColor = "coral" | "teal" | "brand";
 
 // ---------------------------------------------------------------------------
@@ -190,6 +184,24 @@ export interface Lead {
 }
 
 // ---------------------------------------------------------------------------
+// Books (company outreach / pipeline tracker)
+// ---------------------------------------------------------------------------
+export type BookStatus = "delivered" | "pending" | "conflict";
+export type BookDirection = "in" | "out";
+
+export interface Book {
+  id: string;
+  customerName: string;
+  item: string;
+  description: string;
+  quantity: string;
+  amount: string;
+  direction: BookDirection;
+  status: BookStatus;
+  updatedAt: string;
+}
+
+// ---------------------------------------------------------------------------
 // Tasks (company outreach / pipeline tracker)
 // ---------------------------------------------------------------------------
 export type TaskStatus = "deal" | "pending" | "blacklist";
@@ -203,6 +215,51 @@ export interface Task {
   remark: string;
   status: TaskStatus;
   updatedAt: string;
+}
+
+// ---------------------------------------------------------------------------
+// daily (company outreach / pipeline tracker)
+// ---------------------------------------------------------------------------
+export type DailyTaskStatus = "deal" | "pending" | "blacklist";
+
+export interface DailyTask {
+  id: string;
+  task: string;
+  department: string;
+  companyAddress: string;
+  contact: string;
+  remark: string;
+  status: DailyTaskStatus;
+  updatedAt: string;
+}
+
+// ---------------------------------------------------------------------------
+// decision (company outreach / pipeline tracker)
+// ---------------------------------------------------------------------------
+export type DecisionStatus = "done" | "cancelled" | "Pending";
+
+export interface Decision {
+  id: string;
+  director: string;
+  manager: string;
+  lead: string;
+  status: DecisionStatus;
+  type: string;
+}
+
+// ---------------------------------------------------------------------------
+// role clarity (company outreach / pipeline tracker)
+// ---------------------------------------------------------------------------
+export type RoleClarityStatus = "done" | "cancelled" | "Pending";
+
+export interface RoleClarity {
+  id: string;
+  role: string;
+  department: string;
+  coreResponsibility: string;
+  ReportTo: string;
+  keyKpi: string;
+  status: RoleClarityStatus;
 }
 
 // ---------------------------------------------------------------------------

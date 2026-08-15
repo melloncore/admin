@@ -17,9 +17,6 @@ const config: Config = {
           muted: "#7B8194",
         },
         line: "#E3E6EF",
-        // Admin chrome palette (sidebar / shell) — independent from the
-        // editable brand colors, which live in src/lib/theme.ts and are
-        // applied as CSS variables so they can change at runtime.
         slate: {
           950: "#0B0E17",
           925: "#0F1320",

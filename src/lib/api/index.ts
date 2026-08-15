@@ -19,6 +19,9 @@ import type {
   Testimonial,
   TeamMember,
   ValueItem,
+  Book,
+  Decision,
+  RoleClarity,
 } from "@/types";
 import {
   seedAbout,
@@ -27,12 +30,15 @@ import {
   seedAvailability,
   seedBlockedDates,
   seedBlogPosts,
+  seedBooks,
   seedContact,
   seedConversations,
+  seedDecisions,
   seedFooter,
   seedHero,
   seedLeads,
   seedMessages,
+  seedRoleClarity,
   seedServices,
   seedStats,
   seedTasks,
@@ -61,3 +67,6 @@ export const footerApi = createSettingsApi<FooterSettings>("footer", seedFooter)
 export const appearanceApi = createSettingsApi<AppearanceSettings>("appearance", seedAppearance);
 export const userApi = createSettingsApi<AdminUser>("current-user", seedUser);
 export const analyticsApi = createSettingsApi<AnalyticsSnapshot>("analytics", seedAnalytics);
+export const booksApi = createCollectionApi<Book>("books", seedBooks);
+export const decisionsApi = createCollectionApi<Decision>("decisions", seedDecisions);
+export const roleApi = createCollectionApi<RoleClarity>("role-clarity", seedRoleClarity);
