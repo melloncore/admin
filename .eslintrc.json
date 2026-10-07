@@ -10,5 +10,6 @@
     ],
     "no-console": ["warn", { "allow": ["warn", "error"] }],
     "react/no-unescaped-entities": "off"
-  }
+  },
+  "ignorePatterns": [".next/", ".open-next/", "node_modules/", "open-next.config.ts"]
 }
