@@ -16,7 +16,9 @@
     "test:watch": "jest --watch",
     "test:ci": "jest --ci --coverage",
     "prepare": "husky install",
-    "validate": "npm run lint && npm run typecheck && npm run test:ci"
+    "validate": "npm run lint && npm run typecheck && npm run test:ci",
+    "deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
+    "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview"
   },
   "dependencies": {
     "clsx": "2.1.1",
