@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Layers, X, ChevronDown } from "lucide-react";
+import { X, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { NAV_GROUPS } from "@/components/layout/nav-config";
 
@@ -57,11 +58,22 @@ export function Sidebar({ isOpen, onClose, badgeCounts }: SidebarProps) {
         )}
       >
         <div className="flex h-16 items-center justify-between gap-2 border-b border-white/10 px-5">
-          <Link href="/dashboard" className="flex items-center gap-2 font-display font-semibold">
-            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-coral-500 text-white">
-              <Layers size={16} />
+          <Link
+            href="/dashboard"
+            className="flex items-center gap-2 font-display font-semibold"
+          >
+            <Image
+              src="/melloncore-logo.png"
+              alt=""
+              width={36}
+              height={36}
+              className="rounded-md object-contain"
+            />
+            <span className="text-sm leading-tight">
+              Mellon Strata Core
+              <br />
+              Admin
             </span>
-            Mellon Core Admin
           </Link>
           <button
             type="button"

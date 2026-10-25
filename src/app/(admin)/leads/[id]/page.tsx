@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Mail, Building2, Wallet, Calendar } from "lucide-react";
@@ -13,7 +13,10 @@ import { useToast } from "@/context/ToastContext";
 import { formatDateTime } from "@/lib/utils/date";
 import type { Lead, LeadStatus } from "@/types";
 
-const STATUS_TONE: Record<LeadStatus, "info" | "warning" | "success" | "neutral" | "danger"> = {
+const STATUS_TONE: Record<
+  LeadStatus,
+  "info" | "warning" | "success" | "neutral" | "danger"
+> = {
   new: "info",
   contacted: "warning",
   qualified: "success",
@@ -25,22 +28,44 @@ export default function LeadDetailPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
   const { showToast } = useToast();
-  const [lead, setLead] = useState<Lead | null | undefined>(undefined);
+  const queryClient = useQueryClient();
+  const leadQuery = useQuery({
+    queryKey: ["leads", id],
+    queryFn: () => leadsApi.get(id),
+  });
+  const statusMutation = useMutation({
+    mutationFn: (status: LeadStatus) => leadsApi.updateStatus(id, status),
+    onSuccess: (updated) => {
+      queryClient.setQueryData(["leads", id], updated);
+      queryClient.setQueryData<Lead[]>(["leads"], (leads = []) =>
+        leads.map((lead) => (lead.id === updated.id ? updated : lead)),
+      );
+      queryClient.invalidateQueries({ queryKey: ["admin-shell-badges"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard"] });
+      showToast("Status updated.");
+    },
+  });
+  const lead = leadQuery.data;
 
-  useEffect(() => {
-    leadsApi.get(id).then((l) => setLead(l ?? null));
-  }, [id]);
-
-  if (lead === undefined) return <PageLoading />;
-  if (lead === null) {
-    return <EmptyState title="Lead not found" description="It may have already been removed." />;
+  if (leadQuery.isLoading) return <PageLoading />;
+  if (leadQuery.error) {
+    return (
+      <p
+        role="alert"
+        className="rounded-lg border border-coral-200 bg-coral-50 p-4 text-sm text-coral-700"
+      >
+        Lead could not be loaded: {leadQuery.error.message}
+      </p>
+    );
   }
-
-  const handleStatusChange = async (status: LeadStatus) => {
-    const updated = await leadsApi.update(id, { status });
-    if (updated) setLead(updated);
-    showToast("Status updated.");
-  };
+  if (!lead) {
+    return (
+      <EmptyState
+        title="Lead not found"
+        description="It may have already been removed."
+      />
+    );
+  }
 
   return (
     <div>
@@ -57,7 +82,12 @@ export default function LeadDetailPage() {
         actions={
           <div className="flex items-center gap-2">
             <Badge tone={STATUS_TONE[lead.status]}>{lead.status}</Badge>
-            <Select value={lead.status} onChange={(e) => handleStatusChange(e.target.value as LeadStatus)} className="w-40">
+            <Select
+              value={lead.status}
+              onChange={(e) => statusMutation.mutate(e.target.value as LeadStatus)}
+              disabled={statusMutation.isPending}
+              className="w-40"
+            >
               <option value="new">New</option>
               <option value="contacted">Contacted</option>
               <option value="qualified">Qualified</option>
@@ -67,12 +97,22 @@ export default function LeadDetailPage() {
           </div>
         }
       />
+      {statusMutation.error && (
+        <p
+          role="alert"
+          className="mb-4 rounded-lg border border-coral-200 bg-coral-50 p-4 text-sm text-coral-700"
+        >
+          Status could not be updated: {statusMutation.error.message}
+        </p>
+      )}
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <Card className="lg:col-span-2">
           <CardHeader title="Project details" />
           <CardBody>
-            <p className="whitespace-pre-line text-sm text-ink-soft">{lead.projectDetails}</p>
+            <p className="whitespace-pre-line text-sm text-ink-soft">
+              {lead.projectDetails}
+            </p>
           </CardBody>
         </Card>
 
@@ -80,7 +120,10 @@ export default function LeadDetailPage() {
           <CardHeader title="Contact" />
           <CardBody className="space-y-4">
             <InfoRow icon={Mail} label="Email">
-              <Link href={`mailto:${lead.email}`} className="text-brand-700 hover:underline">
+              <Link
+                href={`mailto:${lead.email}`}
+                className="text-brand-700 hover:underline"
+              >
                 {lead.email}
               </Link>
             </InfoRow>

@@ -1,78 +1,62 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 interface CollectionApi<T extends { id: string }> {
+  storageKey: string;
   list: () => Promise<T[]>;
   create: (data: Omit<T, "id">) => Promise<T>;
   update: (id: string, data: Partial<T>) => Promise<T | undefined>;
   remove: (id: string) => Promise<void>;
-  reorder: (orderedIds: string[]) => Promise<T[]>;
+  reorder?: (orderedIds: string[]) => Promise<T[]>;
 }
 
-/**
- * Wraps a collection API module (see src/lib/api) with loading state and
- * optimistic-ish local state updates so list/detail pages stay simple.
- */
 export function useCollection<T extends { id: string }>(api: CollectionApi<T>) {
-  const [items, setItems] = useState<T[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const queryClient = useQueryClient();
+  const queryKey = ["collection", api.storageKey];
+  const query = useQuery({ queryKey, queryFn: api.list });
 
-  const refresh = useCallback(async () => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const data = await api.list();
-      setItems(data);
-    } catch {
-      setError("Couldn't load this data. Try refreshing the page.");
-    } finally {
-      setIsLoading(false);
-    }
-  }, [api]);
-
-  useEffect(() => {
-    refresh();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  const create = useCallback(
-    async (data: Omit<T, "id">) => {
-      const created = await api.create(data);
-      setItems((prev) => [...prev, created]);
-      return created;
+  const createMutation = useMutation({
+    mutationFn: api.create,
+    onSuccess: (created) => {
+      queryClient.setQueryData<T[]>(queryKey, (items = []) => [...items, created]);
     },
-    [api],
-  );
-
-  const update = useCallback(
-    async (id: string, data: Partial<T>) => {
-      const updated = await api.update(id, data);
-      if (updated) {
-        setItems((prev) => prev.map((item) => (item.id === id ? updated : item)));
+  });
+  const updateMutation = useMutation({
+    mutationFn: ({ id, data }: { id: string; data: Partial<T> }) => api.update(id, data),
+    onSuccess: (updated, { id }) => {
+      if (!updated) return;
+      queryClient.setQueryData<T[]>(queryKey, (items = []) =>
+        items.map((item) => (item.id === id ? updated : item)),
+      );
+    },
+  });
+  const removeMutation = useMutation({
+    mutationFn: api.remove,
+    onSuccess: (_result, id) => {
+      queryClient.setQueryData<T[]>(queryKey, (items = []) =>
+        items.filter((item) => item.id !== id),
+      );
+    },
+  });
+  const reorderMutation = useMutation({
+    mutationFn: (orderedIds: string[]) => {
+      if (!api.reorder) {
+        throw new Error("Reordering is not supported for this collection.");
       }
-      return updated;
+      return api.reorder(orderedIds);
     },
-    [api],
-  );
+    onSuccess: (items) => queryClient.setQueryData(queryKey, items),
+  });
 
-  const remove = useCallback(
-    async (id: string) => {
-      await api.remove(id);
-      setItems((prev) => prev.filter((item) => item.id !== id));
-    },
-    [api],
-  );
-
-  const reorder = useCallback(
-    async (orderedIds: string[]) => {
-      const next = await api.reorder(orderedIds);
-      setItems(next);
-      return next;
-    },
-    [api],
-  );
-
-  return { items, isLoading, error, refresh, create, update, remove, reorder };
+  return {
+    items: query.data ?? [],
+    isLoading: query.isLoading,
+    error: query.error ? "Couldn't load this data. Try refreshing the page." : null,
+    refresh: () => query.refetch(),
+    create: (data: Omit<T, "id">) => createMutation.mutateAsync(data),
+    update: (id: string, data: Partial<T>) => updateMutation.mutateAsync({ id, data }),
+    remove: (id: string) => removeMutation.mutateAsync(id),
+    reorder: (orderedIds: string[]) => reorderMutation.mutateAsync(orderedIds),
+  };
 }

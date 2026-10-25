@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { PageHeader } from "@/components/ui/Feedback";
 import { BlogForm, type BlogFormValues } from "@/components/domain/BlogForm";
 import { blogApi } from "@/lib/api";
@@ -12,7 +12,7 @@ const BLANK: BlogFormValues = {
   title: "",
   excerpt: "",
   content: "",
-  coverImageUrl: "",
+  images: [],
   category: "",
   author: "",
   status: "draft",
@@ -22,21 +22,35 @@ const BLANK: BlogFormValues = {
 
 export default function NewBlogPostPage() {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const { showToast } = useToast();
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const createMutation = useMutation({
+    mutationFn: (values: BlogFormValues) => blogApi.create(values),
+    onSuccess: async (_post, values) => {
+      await queryClient.invalidateQueries({ queryKey: ["collection", "blog"] });
+      showToast(values.status === "published" ? "Post published." : "Draft saved.");
+      router.push("/blog");
+    },
+    onError: (error) => {
+      showToast(
+        error instanceof Error ? error.message : "Could not save the post.",
+        "error",
+      );
+    },
+  });
 
   const handleSubmit = async (values: BlogFormValues, status: "draft" | "published") => {
-    setIsSubmitting(true);
-    await blogApi.create(values);
-    setIsSubmitting(false);
-    showToast(status === "published" ? "Post published." : "Draft saved.");
-    router.push("/blog");
+    await createMutation.mutateAsync({ ...values, status });
   };
 
   return (
     <div>
       <PageHeader title="New blog post" description="Write a new article for the blog." />
-      <BlogForm initialValues={BLANK} onSubmit={handleSubmit} isSubmitting={isSubmitting} />
+      <BlogForm
+        initialValues={BLANK}
+        onSubmit={handleSubmit}
+        isSubmitting={createMutation.isPending}
+      />
     </div>
   );
 }

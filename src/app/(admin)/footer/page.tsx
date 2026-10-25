@@ -20,7 +20,10 @@ export default function FooterPage() {
   const { data, isLoading, isSaving, saveAll } = useSettings<FooterSettings>(footerApi);
   const { showToast } = useToast();
   const [form, setForm] = useState<FooterSettings | null>(null);
-  const [socialModal, setSocialModal] = useState<{ mode: "create" | "edit"; draft: SocialLink } | null>(null);
+  const [socialModal, setSocialModal] = useState<{
+    mode: "create" | "edit";
+    draft: SocialLink;
+  } | null>(null);
   const [pendingDeleteSocial, setPendingDeleteSocial] = useState<SocialLink | null>(null);
 
   useEffect(() => {
@@ -41,8 +44,12 @@ export default function FooterPage() {
   };
 
   const openCreateSocial = () =>
-    setSocialModal({ mode: "create", draft: { id: "", platform: "", icon: "", url: "" } });
-  const openEditSocial = (link: SocialLink) => setSocialModal({ mode: "edit", draft: link });
+    setSocialModal({
+      mode: "create",
+      draft: { id: "", platform: "", icon: "", url: "" },
+    });
+  const openEditSocial = (link: SocialLink) =>
+    setSocialModal({ mode: "edit", draft: link });
 
   const handleSaveSocial = async () => {
     if (!socialModal || !socialModal.draft.platform.trim()) return;
@@ -50,21 +57,32 @@ export default function FooterPage() {
     if (socialModal.mode === "create") {
       next = {
         ...form,
-        socialLinks: [...form.socialLinks, { ...socialModal.draft, id: generateId("soc") }],
+        socialLinks: [
+          ...form.socialLinks,
+          { ...socialModal.draft, id: generateId("soc") },
+        ],
       };
     } else {
       next = {
         ...form,
-        socialLinks: form.socialLinks.map((s) => (s.id === socialModal.draft.id ? socialModal.draft : s)),
+        socialLinks: form.socialLinks.map((s) =>
+          s.id === socialModal.draft.id ? socialModal.draft : s,
+        ),
       };
     }
-    await persist(next, socialModal.mode === "create" ? "Social link added." : "Social link updated.");
+    await persist(
+      next,
+      socialModal.mode === "create" ? "Social link added." : "Social link updated.",
+    );
     setSocialModal(null);
   };
 
   return (
     <div>
-      <PageHeader title="Footer" description="Logo, description, links and copyright shown site-wide." />
+      <PageHeader
+        title="Footer"
+        description="Logo, description, links and copyright shown site-wide."
+      />
 
       <div className="space-y-6">
         <Card>
@@ -85,12 +103,18 @@ export default function FooterPage() {
                   onChange={(e) => setForm({ ...form, description: e.target.value })}
                 />
               </FormField>
-              <FormField label="Copyright year" htmlFor="copyright-year" hint="Shown as © [year] Nexlayer">
+              <FormField
+                label="Copyright year"
+                htmlFor="copyright-year"
+                hint="Shown as © [year] Mellon Strata Core"
+              >
                 <Input
                   id="copyright-year"
                   type="number"
                   value={form.copyrightYear}
-                  onChange={(e) => setForm({ ...form, copyrightYear: Number(e.target.value) })}
+                  onChange={(e) =>
+                    setForm({ ...form, copyrightYear: Number(e.target.value) })
+                  }
                   className="w-32"
                 />
               </FormField>
@@ -119,16 +143,27 @@ export default function FooterPage() {
             ) : (
               <ul className="divide-y divide-line">
                 {form.socialLinks.map((social) => (
-                  <li key={social.id} className="flex items-center justify-between gap-3 px-5 py-3">
+                  <li
+                    key={social.id}
+                    className="flex items-center justify-between gap-3 px-5 py-3"
+                  >
                     <div>
                       <p className="text-sm font-medium text-ink">{social.platform}</p>
                       <p className="text-xs text-ink-muted">{social.url}</p>
                     </div>
                     <div className="flex gap-1">
-                      <Button variant="ghost" size="sm" onClick={() => openEditSocial(social)}>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => openEditSocial(social)}
+                      >
                         <Pencil size={14} />
                       </Button>
-                      <Button variant="ghost" size="sm" onClick={() => setPendingDeleteSocial(social)}>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setPendingDeleteSocial(social)}
+                      >
                         <Trash2 size={14} className="text-coral-600" />
                       </Button>
                     </div>
@@ -172,17 +207,27 @@ export default function FooterPage() {
                 id="social-platform"
                 value={socialModal.draft.platform}
                 onChange={(e) =>
-                  setSocialModal({ ...socialModal, draft: { ...socialModal.draft, platform: e.target.value } })
+                  setSocialModal({
+                    ...socialModal,
+                    draft: { ...socialModal.draft, platform: e.target.value },
+                  })
                 }
                 placeholder="Twitter, LinkedIn, GitHub…"
               />
             </FormField>
-            <FormField label="Icon name" htmlFor="social-icon" hint="Lucide icon identifier">
+            <FormField
+              label="Icon name"
+              htmlFor="social-icon"
+              hint="Lucide icon identifier"
+            >
               <Input
                 id="social-icon"
                 value={socialModal.draft.icon}
                 onChange={(e) =>
-                  setSocialModal({ ...socialModal, draft: { ...socialModal.draft, icon: e.target.value } })
+                  setSocialModal({
+                    ...socialModal,
+                    draft: { ...socialModal.draft, icon: e.target.value },
+                  })
                 }
                 placeholder="twitter"
               />
@@ -192,7 +237,10 @@ export default function FooterPage() {
                 id="social-url"
                 value={socialModal.draft.url}
                 onChange={(e) =>
-                  setSocialModal({ ...socialModal, draft: { ...socialModal.draft, url: e.target.value } })
+                  setSocialModal({
+                    ...socialModal,
+                    draft: { ...socialModal.draft, url: e.target.value },
+                  })
                 }
                 placeholder="https://…"
               />
@@ -217,7 +265,12 @@ export default function FooterPage() {
         onConfirm={async () => {
           if (!pendingDeleteSocial) return;
           await persist(
-            { ...form, socialLinks: form.socialLinks.filter((s) => s.id !== pendingDeleteSocial.id) },
+            {
+              ...form,
+              socialLinks: form.socialLinks.filter(
+                (s) => s.id !== pendingDeleteSocial.id,
+              ),
+            },
             "Social link removed.",
           );
         }}

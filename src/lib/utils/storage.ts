@@ -1,10 +1,6 @@
 /**
- * Thin, SSR-safe localStorage wrapper.
- *
- * The whole admin app is built "static-first": every domain in src/lib/api
- * reads and writes through here instead of a real backend. When the real API
- * is ready, only the functions inside src/lib/api/* need to change — every
- * component keeps calling the same hooks.
+ * Thin, SSR-safe localStorage wrapper used by legacy adapters and one-time
+ * migration of existing admin data into the backend API.
  */
 
 const NAMESPACE = "nexlayer-admin";
@@ -25,6 +21,17 @@ export function readStorage<T>(name: string, fallback: T): T {
     return JSON.parse(raw) as T;
   } catch {
     return fallback;
+  }
+}
+
+export function readExistingStorage<T>(name: string): T | undefined {
+  if (!isBrowser()) return undefined;
+  try {
+    const raw = window.localStorage.getItem(key(name));
+    if (!raw) return undefined;
+    return JSON.parse(raw) as T;
+  } catch {
+    return undefined;
   }
 }
 

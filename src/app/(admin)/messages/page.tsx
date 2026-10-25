@@ -10,30 +10,53 @@ import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils/cn";
 import { conversationsApi, messagesApi } from "@/lib/api";
 import { useAuth } from "@/context/AuthContext";
+import { useToast } from "@/context/ToastContext";
 import { timeAgo, formatDateTime, nowIso } from "@/lib/utils/date";
 import type { ChatMessage, Conversation } from "@/types";
 
 export default function MessagesPage() {
   const { user } = useAuth();
+  const { showToast } = useToast();
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [reloadKey, setReloadKey] = useState(0);
   const [draft, setDraft] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    Promise.all([conversationsApi.list(), messagesApi.list()]).then(([convos, msgs]) => {
-      const sorted = [...convos].sort((a, b) => +new Date(b.lastMessageAt) - +new Date(a.lastMessageAt));
-      setConversations(sorted);
-      setMessages(msgs);
-      setActiveId(sorted[0]?.id ?? null);
-      setIsLoading(false);
-    });
-  }, []);
+    let active = true;
+    setIsLoading(true);
+    setLoadError(null);
+    Promise.all([conversationsApi.list(), messagesApi.list()])
+      .then(([convos, msgs]) => {
+        if (!active) return;
+        const sorted = [...convos].sort(
+          (a, b) => +new Date(b.lastMessageAt) - +new Date(a.lastMessageAt),
+        );
+        setConversations(sorted);
+        setMessages(msgs);
+        setActiveId(sorted[0]?.id ?? null);
+      })
+      .catch((error: unknown) => {
+        if (!active) return;
+        setLoadError(error instanceof Error ? error.message : "Unable to load messages.");
+      })
+      .finally(() => {
+        if (active) setIsLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, [reloadKey]);
 
   useEffect(() => {
-    scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
+    scrollRef.current?.scrollTo({
+      top: scrollRef.current.scrollHeight,
+      behavior: "smooth",
+    });
   }, [activeId, messages]);
 
   const activeConversation = conversations.find((c) => c.id === activeId) ?? null;
@@ -45,43 +68,100 @@ export default function MessagesPage() {
     setActiveId(id);
     const convo = conversations.find((c) => c.id === id);
     if (convo && convo.unreadCount > 0) {
-      const updated = await conversationsApi.update(id, { unreadCount: 0 });
-      if (updated) {
-        setConversations((prev) => prev.map((c) => (c.id === id ? updated : c)));
+      try {
+        const updated = await conversationsApi.update(id, { unreadCount: 0 });
+        if (updated) {
+          setConversations((prev) => prev.map((c) => (c.id === id ? updated : c)));
+        }
+      } catch (error) {
+        showToast(
+          error instanceof Error ? error.message : "Unable to update conversation.",
+          "error",
+        );
       }
     }
   };
 
   const handleSend = async () => {
     if (!draft.trim() || !activeId) return;
-    const created = await messagesApi.create({
-      conversationId: activeId,
-      sender: "admin",
-      body: draft.trim(),
-      sentAt: nowIso(),
-    });
+    const body = draft.trim();
+    let created: ChatMessage;
+    try {
+      created = await messagesApi.create({
+        conversationId: activeId,
+        sender: "admin",
+        body,
+        sentAt: nowIso(),
+      });
+    } catch (error) {
+      showToast(
+        error instanceof Error ? error.message : "Unable to send message.",
+        "error",
+      );
+      return;
+    }
+
     setMessages((prev) => [...prev, created]);
-    const updated = await conversationsApi.update(activeId, {
-      lastMessage: draft.trim(),
-      lastMessageAt: nowIso(),
-    });
-    if (updated) {
-      setConversations((prev) =>
-        [...prev.map((c) => (c.id === activeId ? updated : c))].sort(
-          (a, b) => +new Date(b.lastMessageAt) - +new Date(a.lastMessageAt),
-        ),
+    setDraft("");
+    try {
+      const updated = await conversationsApi.update(activeId, {
+        lastMessage: body,
+        lastMessageAt: nowIso(),
+      });
+      if (updated) {
+        setConversations((prev) =>
+          [...prev.map((c) => (c.id === activeId ? updated : c))].sort(
+            (a, b) => +new Date(b.lastMessageAt) - +new Date(a.lastMessageAt),
+          ),
+        );
+      }
+    } catch (error) {
+      showToast(
+        error instanceof Error
+          ? `Message sent, but conversation summary was not updated: ${error.message}`
+          : "Message sent, but conversation summary was not updated.",
+        "error",
       );
     }
-    setDraft("");
   };
 
   if (isLoading) return <PageLoading />;
+  if (loadError) {
+    return (
+      <div>
+        <PageHeader
+          title="Messages"
+          description="Chat with customers who reach out through the site."
+        />
+        <div
+          role="alert"
+          className="rounded-lg border border-coral-200 bg-coral-50 p-4 text-sm text-coral-700"
+        >
+          {loadError}
+          <Button
+            className="ml-3"
+            size="sm"
+            variant="secondary"
+            onClick={() => setReloadKey((key) => key + 1)}
+          >
+            Retry
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div>
-      <PageHeader title="Messages" description="Chat with customers who reach out through the site." />
+      <PageHeader
+        title="Messages"
+        description="Chat with customers who reach out through the site."
+      />
 
-      <Card className="grid grid-cols-1 overflow-hidden md:grid-cols-[280px_1fr]" style={{ height: 560 }}>
+      <Card
+        className="grid grid-cols-1 overflow-hidden md:grid-cols-[280px_1fr]"
+        style={{ height: 560 }}
+      >
         <div className="flex flex-col overflow-y-auto border-b border-line md:border-b-0 md:border-r">
           {conversations.length === 0 ? (
             <EmptyState title="No conversations yet" />
@@ -98,13 +178,17 @@ export default function MessagesPage() {
                 <Avatar name={c.customerName} size="sm" />
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center justify-between gap-2">
-                    <p className="truncate text-sm font-medium text-ink">{c.customerName}</p>
+                    <p className="truncate text-sm font-medium text-ink">
+                      {c.customerName}
+                    </p>
                     {c.unreadCount > 0 && (
                       <span className="h-2 w-2 shrink-0 rounded-full bg-coral-500" />
                     )}
                   </div>
                   <p className="truncate text-xs text-ink-muted">{c.lastMessage}</p>
-                  <p className="mt-0.5 text-[11px] text-ink-muted">{timeAgo(c.lastMessageAt)}</p>
+                  <p className="mt-0.5 text-[11px] text-ink-muted">
+                    {timeAgo(c.lastMessageAt)}
+                  </p>
                 </div>
               </button>
             ))
@@ -122,11 +206,17 @@ export default function MessagesPage() {
                 <div className="flex items-center gap-2.5">
                   <Avatar name={activeConversation.customerName} size="sm" />
                   <div>
-                    <p className="text-sm font-medium text-ink">{activeConversation.customerName}</p>
-                    <p className="text-xs text-ink-muted">{activeConversation.customerEmail}</p>
+                    <p className="text-sm font-medium text-ink">
+                      {activeConversation.customerName}
+                    </p>
+                    <p className="text-xs text-ink-muted">
+                      {activeConversation.customerEmail}
+                    </p>
                   </div>
                 </div>
-                <Badge tone={activeConversation.status === "open" ? "success" : "neutral"}>
+                <Badge
+                  tone={activeConversation.status === "open" ? "success" : "neutral"}
+                >
                   <Circle size={8} fill="currentColor" /> {activeConversation.status}
                 </Badge>
               </div>
@@ -135,7 +225,10 @@ export default function MessagesPage() {
                 {activeMessages.map((message) => (
                   <div
                     key={message.id}
-                    className={cn("flex", message.sender === "admin" ? "justify-end" : "justify-start")}
+                    className={cn(
+                      "flex",
+                      message.sender === "admin" ? "justify-end" : "justify-start",
+                    )}
                   >
                     <div
                       className={cn(
@@ -178,7 +271,8 @@ export default function MessagesPage() {
         </div>
       </Card>
       <p className="mt-2 text-xs text-ink-muted">
-        Signed in as {user?.name}. Messages sync from the public site's chat widget once the API is connected.
+        Signed in as {user?.name}. Messages sync from the public site's chat widget once
+        the API is connected.
       </p>
     </div>
   );

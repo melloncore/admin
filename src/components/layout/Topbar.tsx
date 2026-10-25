@@ -7,6 +7,8 @@ import { Menu, ChevronDown, LogOut, Settings, ExternalLink } from "lucide-react"
 import { useAuth } from "@/context/AuthContext";
 import { Avatar } from "@/components/ui/Avatar";
 
+const liveSiteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.melloncore.com";
+
 export function Topbar({ onMenuClick }: { onMenuClick: () => void }) {
   const { user, logout } = useAuth();
   const router = useRouter();
@@ -29,7 +31,7 @@ export function Topbar({ onMenuClick }: { onMenuClick: () => void }) {
           <Menu size={20} />
         </button>
         <Link
-          href="https://www.nexlayer.example"
+          href={liveSiteUrl}
           target="_blank"
           className="hidden items-center gap-1.5 text-sm text-ink-muted transition hover:text-ink sm:flex"
         >

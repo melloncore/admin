@@ -16,7 +16,7 @@ import { formatDate } from "@/lib/utils/date";
 import type { BlogPost } from "@/types";
 
 export default function BlogPage() {
-  const { items, isLoading, remove } = useCollection<BlogPost>(blogApi);
+  const { items, isLoading, error, remove } = useCollection<BlogPost>(blogApi);
   const { showToast } = useToast();
   const [pendingDelete, setPendingDelete] = useState<BlogPost | null>(null);
 
@@ -25,9 +25,13 @@ export default function BlogPage() {
       header: "Post",
       accessor: (row) => (
         <div className="flex items-center gap-3">
-          {row.coverImageUrl ? (
+          {row.images[0]?.url ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={row.coverImageUrl} alt="" className="h-10 w-14 shrink-0 rounded-md object-cover" />
+            <img
+              src={row.images[0].url}
+              alt=""
+              className="h-10 w-14 shrink-0 rounded-md object-cover"
+            />
           ) : (
             <div className="h-10 w-14 shrink-0 rounded-md bg-paper" />
           )}
@@ -43,7 +47,9 @@ export default function BlogPage() {
     {
       header: "Status",
       accessor: (row) => (
-        <Badge tone={row.status === "published" ? "success" : "neutral"}>{row.status}</Badge>
+        <Badge tone={row.status === "published" ? "success" : "neutral"}>
+          {row.status}
+        </Badge>
       ),
     },
   ];
@@ -61,6 +67,15 @@ export default function BlogPage() {
           </Link>
         }
       />
+
+      {error && (
+        <p
+          role="alert"
+          className="mb-4 rounded-lg border border-coral-200 bg-coral-50 px-4 py-3 text-sm text-coral-800"
+        >
+          {error} Check that the backend is running and you are signed in.
+        </p>
+      )}
 
       <Card>
         <CardBody className="p-0">

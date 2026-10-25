@@ -48,18 +48,30 @@ export default function SignupPage() {
           <span className="mb-3 flex h-11 w-11 items-center justify-center rounded-xl bg-brand-700 text-white">
             <Layers size={20} />
           </span>
-          <h1 className="font-display text-xl font-semibold text-ink">Create an account</h1>
-          <p className="mt-1 text-sm text-ink-muted">Get access to the Nexlayer admin</p>
+          <h1 className="font-display text-xl font-semibold text-ink">
+            Create an account
+          </h1>
+          <p className="mt-1 text-sm text-ink-muted">
+            Create the first administrator account
+          </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4 rounded-xl border border-line bg-white p-6 shadow-soft">
+        <form
+          onSubmit={handleSubmit}
+          className="space-y-4 rounded-xl border border-line bg-white p-6 shadow-soft"
+        >
           {error && (
             <p className="rounded-lg border border-coral-200 bg-coral-50 px-3 py-2 text-sm text-coral-700">
               {error}
             </p>
           )}
           <FormField label="Full name" htmlFor="name" required>
-            <Input id="name" value={name} onChange={(e) => setName(e.target.value)} required />
+            <Input
+              id="name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+            />
           </FormField>
           <FormField label="Email" htmlFor="email" required>
             <Input
@@ -70,7 +82,12 @@ export default function SignupPage() {
               required
             />
           </FormField>
-          <FormField label="Password" htmlFor="password" required hint="At least 8 characters">
+          <FormField
+            label="Password"
+            htmlFor="password"
+            required
+            hint="At least 8 characters"
+          >
             <Input
               id="password"
               type="password"

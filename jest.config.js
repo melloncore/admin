@@ -9,12 +9,13 @@ const config = {
   moduleNameMapper: {
     "^@/(.*)$": "<rootDir>/src/$1",
   },
-  testPathIgnorePatterns: ["<rootDir>/.next/", "<rootDir>/node_modules/"],
-  collectCoverageFrom: [
-    "src/**/*.{ts,tsx}",
-    "!src/app/**/layout.tsx",
-    "!src/**/*.d.ts",
+  testPathIgnorePatterns: [
+    "<rootDir>/.next/",
+    "<rootDir>/.open-next/",
+    "<rootDir>/node_modules/",
   ],
+  modulePathIgnorePatterns: ["<rootDir>/.open-next/"],
+  collectCoverageFrom: ["src/**/*.{ts,tsx}", "!src/app/**/layout.tsx", "!src/**/*.d.ts"],
 };
 
 module.exports = createJestConfig(config);

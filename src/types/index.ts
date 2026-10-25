@@ -99,13 +99,18 @@ export interface Testimonial {
 // ---------------------------------------------------------------------------
 export type BlogStatus = "draft" | "published";
 
+export interface BlogImage {
+  url: string;
+  alt: string;
+}
+
 export interface BlogPost {
   id: string;
   slug: string;
   title: string;
   excerpt: string;
   content: string;
-  coverImageUrl: string;
+  images: BlogImage[];
   category: string;
   author: string;
   status: BlogStatus;
@@ -341,7 +346,7 @@ export interface TopPage {
 export interface AnalyticsSnapshot {
   totalVisitors: number;
   totalPageViews: number;
-  bounceRate: number;
+  bounceRate: number | null;
   avgSessionDuration: string;
   traffic: TrafficPoint[];
   topClicks: ClickEvent[];

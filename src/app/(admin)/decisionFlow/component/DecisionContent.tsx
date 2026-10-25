@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Plus, Pencil, Trash2, Search } from "lucide-react";
+import { Plus, Pencil, Search } from "lucide-react";
 import { PageHeader } from "@/components/ui/Feedback";
 import { Card, CardBody } from "@/components/ui/Card";
 import { DataTable, type Column } from "@/components/ui/DataTable";
@@ -37,9 +37,12 @@ const STATUS_LABEL: Record<DecisionStatus, string> = {
 };
 
 const DecisionContent = () => {
-  const { items, isLoading, create, update, remove } = useCollection<Decision>(decisionsApi);
+  const { items, isLoading, create, update, remove } =
+    useCollection<Decision>(decisionsApi);
   const { showToast } = useToast();
-  const [modal, setModal] = useState<{ mode: "create" | "edit"; draft: Decision } | null>(null);
+  const [modal, setModal] = useState<{ mode: "create" | "edit"; draft: Decision } | null>(
+    null,
+  );
   const [pendingDelete, setPendingDelete] = useState<Decision | null>(null);
   const [statusFilter, setStatusFilter] = useState<DecisionStatus | "all">("all");
   const [query, setQuery] = useState("");
@@ -88,11 +91,15 @@ const DecisionContent = () => {
     },
     {
       header: "Director 1",
-      accessor: (row) => <span className="block max-w-[220px] truncate">{row.director}</span>,
+      accessor: (row) => (
+        <span className="block max-w-[220px] truncate">{row.director}</span>
+      ),
     },
     {
       header: "Director 2",
-      accessor: (row) => <span className="block max-w-[220px] truncate">{row.manager}</span>,
+      accessor: (row) => (
+        <span className="block max-w-[220px] truncate">{row.manager}</span>
+      ),
     },
     {
       header: "Director 3",
@@ -100,7 +107,9 @@ const DecisionContent = () => {
     },
     {
       header: "Status",
-      accessor: (row) => <Badge tone={STATUS_TONE[row.status]}>{STATUS_LABEL[row.status]}</Badge>,
+      accessor: (row) => (
+        <Badge tone={STATUS_TONE[row.status]}>{STATUS_LABEL[row.status]}</Badge>
+      ),
     },
   ];
 
@@ -118,7 +127,10 @@ const DecisionContent = () => {
 
       <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center">
         <div className="relative flex-1 sm:max-w-xs">
-          <Search size={15} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-ink-muted" />
+          <Search
+            size={15}
+            className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-ink-muted"
+          />
           <Input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
@@ -149,7 +161,12 @@ const DecisionContent = () => {
             emptyDescription="Add a company you're tracking to get started."
             actions={(row) => (
               <>
-                <Button variant="ghost" size="sm" onClick={() => openEdit(row)} aria-label={`Edit ${row.type}`}>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => openEdit(row)}
+                  aria-label={`Edit ${row.type}`}
+                >
                   <Pencil size={14} />
                 </Button>
               </>
@@ -171,7 +188,10 @@ const DecisionContent = () => {
                   id="task-company"
                   value={modal.draft.type}
                   onChange={(e) =>
-                    setModal({ ...modal, draft: { ...modal.draft, type: e.target.value } })
+                    setModal({
+                      ...modal,
+                      draft: { ...modal.draft, type: e.target.value },
+                    })
                   }
                 />
               </FormField>
@@ -180,7 +200,10 @@ const DecisionContent = () => {
                   id="task-sector"
                   value={modal.draft.director}
                   onChange={(e) =>
-                    setModal({ ...modal, draft: { ...modal.draft, director: e.target.value } })
+                    setModal({
+                      ...modal,
+                      draft: { ...modal.draft, director: e.target.value },
+                    })
                   }
                   placeholder="Fintech, Retail, Logistics…"
                 />
@@ -191,15 +214,24 @@ const DecisionContent = () => {
                 id="task-address"
                 value={modal.draft.manager}
                 onChange={(e) =>
-                  setModal({ ...modal, draft: { ...modal.draft, manager: e.target.value } })
+                  setModal({
+                    ...modal,
+                    draft: { ...modal.draft, manager: e.target.value },
+                  })
                 }
               />
             </FormField>
-            <FormField label="Contact" htmlFor="task-contact" hint="Name, email and/or phone number">
+            <FormField
+              label="Contact"
+              htmlFor="task-contact"
+              hint="Name, email and/or phone number"
+            >
               <Input
                 id="task-contact"
                 value={modal.draft.lead}
-                onChange={(e) => setModal({ ...modal, draft: { ...modal.draft, lead: e.target.value } })}
+                onChange={(e) =>
+                  setModal({ ...modal, draft: { ...modal.draft, lead: e.target.value } })
+                }
               />
             </FormField>
             <FormField label="Status" htmlFor="task-status">
@@ -207,7 +239,10 @@ const DecisionContent = () => {
                 id="task-status"
                 value={modal.draft.status}
                 onChange={(e) =>
-                  setModal({ ...modal, draft: { ...modal.draft, status: e.target.value as DecisionStatus } })
+                  setModal({
+                    ...modal,
+                    draft: { ...modal.draft, status: e.target.value as DecisionStatus },
+                  })
                 }
               >
                 <option value="Pending">Pending</option>
@@ -219,7 +254,9 @@ const DecisionContent = () => {
               <Button variant="outline" onClick={() => setModal(null)}>
                 Cancel
               </Button>
-              <Button onClick={handleSave}>{modal.mode === "create" ? "Add task" : "Save changes"}</Button>
+              <Button onClick={handleSave}>
+                {modal.mode === "create" ? "Add task" : "Save changes"}
+              </Button>
             </div>
           </div>
         )}
@@ -240,4 +277,4 @@ const DecisionContent = () => {
   );
 };
 
-export default DecisionContent;   
+export default DecisionContent;

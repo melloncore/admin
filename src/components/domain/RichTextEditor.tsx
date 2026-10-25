@@ -1,16 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef } from "react";
-import {
-  Bold,
-  Italic,
-  List,
-  ListOrdered,
-  Heading2,
-  Link2,
-  ImagePlus,
-  Quote,
-} from "lucide-react";
+import { Bold, Italic, List, ListOrdered, Heading2, Link2, Quote } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 
 interface RichTextEditorProps {
@@ -26,7 +17,6 @@ interface RichTextEditorProps {
  */
 export function RichTextEditor({ value, onChange, placeholder }: RichTextEditorProps) {
   const ref = useRef<HTMLDivElement>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (ref.current && ref.current.innerHTML !== value) {
@@ -44,17 +34,6 @@ export function RichTextEditor({ value, onChange, placeholder }: RichTextEditorP
     [onChange],
   );
 
-  const handleInsertImage = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      exec("insertImage", reader.result as string);
-    };
-    reader.readAsDataURL(file);
-    e.target.value = "";
-  };
-
   const handleInsertLink = () => {
     const url = window.prompt("Link URL");
     if (url) exec("createLink", url);
@@ -66,9 +45,12 @@ export function RichTextEditor({ value, onChange, placeholder }: RichTextEditorP
     { icon: Heading2, label: "Heading", action: () => exec("formatBlock", "H2") },
     { icon: Quote, label: "Quote", action: () => exec("formatBlock", "BLOCKQUOTE") },
     { icon: List, label: "Bullet list", action: () => exec("insertUnorderedList") },
-    { icon: ListOrdered, label: "Numbered list", action: () => exec("insertOrderedList") },
+    {
+      icon: ListOrdered,
+      label: "Numbered list",
+      action: () => exec("insertOrderedList"),
+    },
     { icon: Link2, label: "Link", action: handleInsertLink },
-    { icon: ImagePlus, label: "Image", action: () => fileInputRef.current?.click() },
   ];
 
   return (
@@ -86,13 +68,6 @@ export function RichTextEditor({ value, onChange, placeholder }: RichTextEditorP
             <Icon size={15} />
           </button>
         ))}
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept="image/*"
-          onChange={handleInsertImage}
-          className="hidden"
-        />
       </div>
       <div
         ref={ref}
@@ -102,9 +77,9 @@ export function RichTextEditor({ value, onChange, placeholder }: RichTextEditorP
         data-placeholder={placeholder}
         className={cn(
           "prose prose-sm min-h-[280px] max-w-none px-4 py-3 text-sm text-ink-soft focus:outline-none",
-          "[&_h2]:mt-4 [&_h2]:mb-2 [&_h2]:text-lg [&_h2]:font-semibold [&_h2]:text-ink",
+          "[&_h2]:mb-2 [&_h2]:mt-4 [&_h2]:text-lg [&_h2]:font-semibold [&_h2]:text-ink",
           "[&_blockquote]:border-l-2 [&_blockquote]:border-brand-300 [&_blockquote]:pl-3 [&_blockquote]:italic",
-          "[&_img]:my-3 [&_img]:rounded-lg [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5",
+          "[&_img]:my-3 [&_img]:rounded-lg [&_ol]:list-decimal [&_ol]:pl-5 [&_ul]:list-disc [&_ul]:pl-5",
           "empty:before:text-ink-muted empty:before:content-[attr(data-placeholder)]",
         )}
       />

@@ -1,72 +1,65 @@
-import { createCollectionApi, createSettingsApi } from "@/lib/api/collection";
+import { createBackendCollectionApi, createBackendSettingsApi } from "@/lib/api/content";
 import type {
   AboutContent,
-  AdminUser,
-  AnalyticsSnapshot,
   AppearanceSettings,
   BlockedDate,
-  BlogPost,
+  ChatMessage,
   ContactSettings,
   Conversation,
-  ChatMessage,
   DayAvailability,
+  Decision,
   FooterSettings,
   HeroContent,
-  Lead,
+  RoleClarity,
   Service,
   Stat,
   Task,
-  Testimonial,
   TeamMember,
+  Testimonial,
   ValueItem,
   Book,
-  Decision,
-  RoleClarity,
 } from "@/types";
 import {
   seedAbout,
-  seedAnalytics,
   seedAppearance,
   seedAvailability,
-  seedBlockedDates,
-  seedBlogPosts,
-  seedBooks,
   seedContact,
-  seedConversations,
-  seedDecisions,
   seedFooter,
   seedHero,
-  seedLeads,
-  seedMessages,
-  seedRoleClarity,
-  seedServices,
-  seedStats,
-  seedTasks,
-  seedTeam,
-  seedTestimonials,
-  seedUser,
-  seedValues,
 } from "@/lib/mock/seed";
+import { getAnalytics } from "./analytics";
 
-export const heroApi = createSettingsApi<HeroContent>("hero", seedHero);
-export const servicesApi = createCollectionApi<Service>("services", seedServices);
-export const aboutApi = createSettingsApi<AboutContent>("about", seedAbout);
-export const valuesApi = createCollectionApi<ValueItem>("values", seedValues);
-export const statsApi = createCollectionApi<Stat>("stats", seedStats);
-export const teamApi = createCollectionApi<TeamMember>("team", seedTeam);
-export const testimonialsApi = createCollectionApi<Testimonial>("testimonials", seedTestimonials);
-export const blogApi = createCollectionApi<BlogPost>("blog", seedBlogPosts);
-export const availabilityApi = createSettingsApi<DayAvailability[]>("availability", seedAvailability);
-export const blockedDatesApi = createCollectionApi<BlockedDate>("blocked-dates", seedBlockedDates);
-export const conversationsApi = createCollectionApi<Conversation>("conversations", seedConversations);
-export const messagesApi = createCollectionApi<ChatMessage>("messages", seedMessages);
-export const contactApi = createSettingsApi<ContactSettings>("contact", seedContact);
-export const leadsApi = createCollectionApi<Lead>("leads", seedLeads);
-export const tasksApi = createCollectionApi<Task>("tasks", seedTasks);
-export const footerApi = createSettingsApi<FooterSettings>("footer", seedFooter);
-export const appearanceApi = createSettingsApi<AppearanceSettings>("appearance", seedAppearance);
-export const userApi = createSettingsApi<AdminUser>("current-user", seedUser);
-export const analyticsApi = createSettingsApi<AnalyticsSnapshot>("analytics", seedAnalytics);
-export const booksApi = createCollectionApi<Book>("books", seedBooks);
-export const decisionsApi = createCollectionApi<Decision>("decisions", seedDecisions);
-export const roleApi = createCollectionApi<RoleClarity>("role-clarity", seedRoleClarity);
+export const heroApi = createBackendSettingsApi<HeroContent>("hero", seedHero);
+export const servicesApi = createBackendCollectionApi<Service>("services");
+export const aboutApi = createBackendSettingsApi<AboutContent>("about", seedAbout);
+export const valuesApi = createBackendCollectionApi<ValueItem>("values");
+export const statsApi = createBackendCollectionApi<Stat>("stats");
+export const teamApi = createBackendCollectionApi<TeamMember>("team");
+export const testimonialsApi = createBackendCollectionApi<Testimonial>("testimonials");
+export const availabilityApi = createBackendSettingsApi<DayAvailability[]>(
+  "availability",
+  seedAvailability,
+);
+export const blockedDatesApi = createBackendCollectionApi<BlockedDate>("blocked-dates");
+export const conversationsApi = createBackendCollectionApi<Conversation>("conversations");
+export const messagesApi = createBackendCollectionApi<ChatMessage>("messages");
+export const contactApi = createBackendSettingsApi<ContactSettings>(
+  "contact",
+  seedContact,
+);
+export const tasksApi = createBackendCollectionApi<Task>("tasks");
+export const footerApi = createBackendSettingsApi<FooterSettings>("footer", seedFooter);
+export const appearanceApi = createBackendSettingsApi<AppearanceSettings>(
+  "appearance",
+  seedAppearance,
+);
+export const analyticsApi = { get: getAnalytics };
+export const booksApi = createBackendCollectionApi<Book>("books");
+export const decisionsApi = createBackendCollectionApi<Decision>("decisions");
+export const roleApi = createBackendCollectionApi<RoleClarity>("role-clarity");
+
+export { blogApi } from "./blog";
+export { leadsApi } from "./leads";
+export { invitesApi } from "./invites";
+export { operationsApi } from "./operations";
+export { staffApi } from "./staff";

@@ -14,7 +14,12 @@
 # misc
 .DS_Store
 *.pem
-.env*.local
+
+# Environment files (keep only safe templates in source control).
+.env
+.env.*
+!.env.example
+!.env.production.example
 
 # debug
 npm-debug.log*

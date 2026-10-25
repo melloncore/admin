@@ -4,10 +4,10 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: {
-    default: "Nexlayer Admin",
-    template: "%s · Nexlayer Admin",
+    default: "Mellon Strata Core Admin",
+    template: "%s · Mellon Strata Core Admin",
   },
-  description: "Content and settings admin for the Nexlayer company portfolio website.",
+  description: "Content and settings admin for the Mellon Strata Core portfolio website.",
   robots: { index: false, follow: false },
 };
 

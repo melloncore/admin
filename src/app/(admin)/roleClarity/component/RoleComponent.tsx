@@ -38,9 +38,13 @@ const STATUS_LABEL: Record<RoleClarityStatus, string> = {
 };
 
 const RoleComponent = () => {
-  const { items, isLoading, create, update, remove } = useCollection<RoleClarity>(roleApi);
+  const { items, isLoading, create, update, remove } =
+    useCollection<RoleClarity>(roleApi);
   const { showToast } = useToast();
-  const [modal, setModal] = useState<{ mode: "create" | "edit"; draft: RoleClarity } | null>(null);
+  const [modal, setModal] = useState<{
+    mode: "create" | "edit";
+    draft: RoleClarity;
+  } | null>(null);
   const [pendingDelete, setPendingDelete] = useState<RoleClarity | null>(null);
   const [statusFilter, setStatusFilter] = useState<RoleClarityStatus | "all">("all");
   const [query, setQuery] = useState("");
@@ -60,7 +64,8 @@ const RoleComponent = () => {
   }, [items, query, statusFilter]);
 
   const openCreate = () => setModal({ mode: "create", draft: { id: "", ...EMPTY } });
-  const openEdit = (roleClarity: RoleClarity) => setModal({ mode: "edit", draft: roleClarity });
+  const openEdit = (roleClarity: RoleClarity) =>
+    setModal({ mode: "edit", draft: roleClarity });
 
   const handleSave = async () => {
     if (!modal) return;
@@ -89,23 +94,33 @@ const RoleComponent = () => {
     },
     {
       header: "Department",
-      accessor: (row) => <span className="block max-w-[220px] truncate">{row.department}</span>,
+      accessor: (row) => (
+        <span className="block max-w-[220px] truncate">{row.department}</span>
+      ),
     },
     {
       header: "Core Responsibility",
-      accessor: (row) => <span className="block max-w-[220px] truncate">{row.coreResponsibility}</span>,
+      accessor: (row) => (
+        <span className="block max-w-[220px] truncate">{row.coreResponsibility}</span>
+      ),
     },
     {
       header: "Reports To",
-      accessor: (row) => <span className="block max-w-[200px] truncate">{row.ReportTo}</span>,
+      accessor: (row) => (
+        <span className="block max-w-[200px] truncate">{row.ReportTo}</span>
+      ),
     },
     {
       header: "Key KPI",
-      accessor: (row) => <span className="block max-w-[200px] truncate">{row.keyKpi}</span>,
+      accessor: (row) => (
+        <span className="block max-w-[200px] truncate">{row.keyKpi}</span>
+      ),
     },
     {
       header: "Status",
-      accessor: (row) => <Badge tone={STATUS_TONE[row.status]}>{STATUS_LABEL[row.status]}</Badge>,
+      accessor: (row) => (
+        <Badge tone={STATUS_TONE[row.status]}>{STATUS_LABEL[row.status]}</Badge>
+      ),
     },
   ];
 
@@ -123,7 +138,10 @@ const RoleComponent = () => {
 
       <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center">
         <div className="relative flex-1 sm:max-w-xs">
-          <Search size={15} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-ink-muted" />
+          <Search
+            size={15}
+            className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-ink-muted"
+          />
           <Input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
@@ -152,7 +170,27 @@ const RoleComponent = () => {
             isLoading={isLoading}
             emptyTitle="No roles yet"
             emptyDescription="Add a role you're tracking to get started."
-            
+            actions={(row) => (
+              <>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => openEdit(row)}
+                  aria-label={`Edit ${row.role}`}
+                >
+                  <Pencil size={14} />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setPendingDelete(row)}
+                  aria-label={`Remove ${row.role}`}
+                  className="text-coral-600"
+                >
+                  <Trash2 size={14} />
+                </Button>
+              </>
+            )}
           />
         </CardBody>
       </Card>
@@ -170,7 +208,10 @@ const RoleComponent = () => {
                   id="role-name"
                   value={modal.draft.role}
                   onChange={(e) =>
-                    setModal({ ...modal, draft: { ...modal.draft, role: e.target.value } })
+                    setModal({
+                      ...modal,
+                      draft: { ...modal.draft, role: e.target.value },
+                    })
                   }
                 />
               </FormField>
@@ -179,7 +220,10 @@ const RoleComponent = () => {
                   id="role-department"
                   value={modal.draft.department}
                   onChange={(e) =>
-                    setModal({ ...modal, draft: { ...modal.draft, department: e.target.value } })
+                    setModal({
+                      ...modal,
+                      draft: { ...modal.draft, department: e.target.value },
+                    })
                   }
                   placeholder="Engineering, Sales, Operations…"
                 />
@@ -190,22 +234,39 @@ const RoleComponent = () => {
                 id="role-responsibility"
                 value={modal.draft.coreResponsibility}
                 onChange={(e) =>
-                  setModal({ ...modal, draft: { ...modal.draft, coreResponsibility: e.target.value } })
+                  setModal({
+                    ...modal,
+                    draft: { ...modal.draft, coreResponsibility: e.target.value },
+                  })
                 }
               />
             </FormField>
-            <FormField label="Reports to" htmlFor="role-reportto" hint="Manager or role this reports into">
+            <FormField
+              label="Reports to"
+              htmlFor="role-reportto"
+              hint="Manager or role this reports into"
+            >
               <Input
                 id="role-reportto"
                 value={modal.draft.ReportTo}
-                onChange={(e) => setModal({ ...modal, draft: { ...modal.draft, ReportTo: e.target.value } })}
+                onChange={(e) =>
+                  setModal({
+                    ...modal,
+                    draft: { ...modal.draft, ReportTo: e.target.value },
+                  })
+                }
               />
             </FormField>
             <FormField label="Key KPI" htmlFor="role-kpi">
               <Input
                 id="role-kpi"
                 value={modal.draft.keyKpi}
-                onChange={(e) => setModal({ ...modal, draft: { ...modal.draft, keyKpi: e.target.value } })}
+                onChange={(e) =>
+                  setModal({
+                    ...modal,
+                    draft: { ...modal.draft, keyKpi: e.target.value },
+                  })
+                }
               />
             </FormField>
             <FormField label="Status" htmlFor="role-status">
@@ -213,7 +274,13 @@ const RoleComponent = () => {
                 id="role-status"
                 value={modal.draft.status}
                 onChange={(e) =>
-                  setModal({ ...modal, draft: { ...modal.draft, status: e.target.value as RoleClarityStatus } })
+                  setModal({
+                    ...modal,
+                    draft: {
+                      ...modal.draft,
+                      status: e.target.value as RoleClarityStatus,
+                    },
+                  })
                 }
               >
                 <option value="Pending">Pending</option>
@@ -225,7 +292,9 @@ const RoleComponent = () => {
               <Button variant="outline" onClick={() => setModal(null)}>
                 Cancel
               </Button>
-              <Button onClick={handleSave}>{modal.mode === "create" ? "Add role" : "Save changes"}</Button>
+              <Button onClick={handleSave}>
+                {modal.mode === "create" ? "Add role" : "Save changes"}
+              </Button>
             </div>
           </div>
         )}

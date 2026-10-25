@@ -4,7 +4,6 @@ import type {
   AnalyticsSnapshot,
   AppearanceSettings,
   BlockedDate,
-  BlogPost,
   ContactSettings,
   Conversation,
   ChatMessage,
@@ -29,9 +28,8 @@ export const seedHero: HeroContent = {
   eyebrow: "Product engineering studio",
   headline: "Software, cloud & AI systems built to hold up.",
   subheadline:
-    "Nexlayer designs, builds and scales web platforms, cloud infrastructure and AI-driven systems for growing companies.",
-  imageUrl:
-    "https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=1200&q=80",
+    "Mellon Strata Core designs, builds and scales web platforms, cloud infrastructure and AI-driven systems for growing companies.",
+  imageUrl: "https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=1200&q=80",
   imageAlt: "Engineers collaborating around a laptop",
   primaryCtaLabel: "Start a project",
   primaryCtaHref: "/contact",
@@ -63,7 +61,8 @@ export const seedServices: Service[] = [
       {
         id: "eng_1",
         name: "Embedded pod",
-        description: "A dedicated team that plugs into your existing workflow and ceremonies.",
+        description:
+          "A dedicated team that plugs into your existing workflow and ceremonies.",
         bestFor: "Ongoing product teams",
         priceRange: "$18k–$40k / mo",
       },
@@ -98,7 +97,8 @@ export const seedServices: Service[] = [
       {
         id: "eng_3",
         name: "Infrastructure audit",
-        description: "A two-week deep dive into your current setup with a prioritized report.",
+        description:
+          "A two-week deep dive into your current setup with a prioritized report.",
         bestFor: "Teams unsure where to start",
         priceRange: "$9k flat",
       },
@@ -129,7 +129,7 @@ export const seedServices: Service[] = [
 export const seedAbout: AboutContent = {
   title: "We build things that outlast the engagement.",
   description:
-    "Nexlayer is a product engineering studio that designs, builds and scales web platforms, cloud infrastructure and AI-driven systems for growing companies.",
+    "Mellon Strata Core is a product engineering studio that designs, builds and scales web platforms, cloud infrastructure and AI-driven systems for growing companies.",
   missionTitle: "Our mission",
   missionDescription:
     "Give every client a system their own team can run without us in the room.",
@@ -153,13 +153,15 @@ export const seedValues: ValueItem[] = [
     id: "val_3",
     order: 3,
     title: "Build to hand off",
-    description: "We document and structure systems so your team can operate them without us.",
+    description:
+      "We document and structure systems so your team can operate them without us.",
   },
   {
     id: "val_4",
     order: 4,
     title: "Say the hard thing early",
-    description: "If a timeline is unrealistic or an approach won't scale, we say so in week one.",
+    description:
+      "If a timeline is unrealistic or an approach won't scale, we say so in week one.",
   },
 ];
 
@@ -167,7 +169,13 @@ export const seedStats: Stat[] = [
   { id: "stat_1", order: 1, value: "120+", label: "Products shipped", percentage: 100 },
   { id: "stat_2", order: 2, value: "98%", label: "Client retention", percentage: 98 },
   { id: "stat_3", order: 3, value: "14", label: "Countries served", percentage: 70 },
-  { id: "stat_4", order: 4, value: "9 yrs", label: "Average team tenure", percentage: 60 },
+  {
+    id: "stat_4",
+    order: 4,
+    value: "9 yrs",
+    label: "Average team tenure",
+    percentage: 60,
+  },
 ];
 
 export const seedTeam: TeamMember[] = [
@@ -185,7 +193,7 @@ export const seedTeam: TeamMember[] = [
     order: 2,
     name: "Daniel Cho",
     role: "Co-founder & Head of Engineering",
-    bio: "Built and sold a dev-tools startup before starting Nexlayer.",
+    bio: "Built and sold a dev-tools startup before joining Mellon Strata Core.",
     initials: "DC",
     photoUrl: "",
   },
@@ -204,7 +212,7 @@ export const seedTestimonials: Testimonial[] = [
   {
     id: "test_1",
     quote:
-      "Nexlayer rebuilt our checkout flow in six weeks and cut cart abandonment by a third.",
+      "The team rebuilt our checkout flow in six weeks and cut cart abandonment by a third.",
     name: "Elena Marsh",
     role: "VP of Product",
     company: "Fielder Logistics",
@@ -222,39 +230,6 @@ export const seedTestimonials: Testimonial[] = [
     avatarUrl: "",
     rating: 5,
     isFeatured: true,
-  },
-];
-
-export const seedBlogPosts: BlogPost[] = [
-  {
-    id: "post_1",
-    slug: "picking-a-cloud-provider-in-2026",
-    title: "Picking a cloud provider in 2026: what actually matters",
-    excerpt:
-      "Pricing pages don't tell you the whole story. Here's the checklist we run before recommending AWS, GCP or Azure.",
-    content:
-      "<p>Pricing pages don't tell you the whole story. Here's the checklist we run before recommending a cloud provider to a client.</p>",
-    coverImageUrl:
-      "https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=1200&q=80",
-    category: "Cloud",
-    author: "Tomas Varga",
-    status: "published",
-    date: "2026-07-02",
-    readTime: "7 min read",
-  },
-  {
-    id: "post_2",
-    slug: "shipping-llm-features-without-the-hype",
-    title: "Shipping LLM features without the hype",
-    excerpt: "Most AI features fail from scope, not the model.",
-    content: "<p>Most AI features fail from scope, not the model.</p>",
-    coverImageUrl:
-      "https://images.unsplash.com/photo-1677442136019-21780ecad995?w=1200&q=80",
-    category: "AI",
-    author: "Aisha Bello",
-    status: "draft",
-    date: "2026-06-18",
-    readTime: "9 min read",
   },
 ];
 
@@ -320,8 +295,13 @@ export const seedMessages: ChatMessage[] = [
 export const seedContact: ContactSettings = {
   responseTime: "We usually reply within 1 business day.",
   channels: [
-    { id: "ch_1", type: "email", label: "General enquiries", value: "hello@nexlayer.example" },
-    { id: "ch_2", type: "email", label: "Support", value: "support@nexlayer.example" },
+    {
+      id: "ch_1",
+      type: "email",
+      label: "General enquiries",
+      value: "hello@melloncore.com",
+    },
+    { id: "ch_2", type: "email", label: "Support", value: "support@melloncore.com" },
     { id: "ch_3", type: "phone", label: "Office", value: "+1 (555) 019-2044" },
     {
       id: "ch_4",
@@ -372,7 +352,8 @@ export const seedTasks: Task[] = [
     sector: "Fintech",
     companyAddress: "220 Congress Ave, Austin, TX 78701",
     contact: "sarah@brightpath.io · +1 (555) 201-8890",
-    remark: "Interested in a full customer portal rebuild. Waiting on their budget sign-off.",
+    remark:
+      "Interested in a full customer portal rebuild. Waiting on their budget sign-off.",
     status: "pending",
     updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 5).toISOString(),
   },
@@ -408,50 +389,50 @@ export const seedTasks: Task[] = [
   },
 ];
 
-  export const seedBooks: Book[] = [
-    {
-      id: "book_1",
-      customerName: "Sarah Whitfield",
-      item: "Customer Portal Rebuild",
-      description: "Rebuilding our customer portal with better reporting and SSO.",
-      quantity: "1",
-      amount: "$40,000",
-      status: "delivered",
-      direction: "incoming" as Book["direction"],
-      updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 3).toISOString(),
-    },
-    {
-      id: "book_2",
-      customerName: "Michael Osei",
-      item: "AWS Migration",
-      description: "Full platform migration to AWS with a new event pipeline.",
-      quantity: "1",
-      amount: "$100,000+",
-      status: "conflict",
-      direction: "incoming" as Book["direction"],
-      updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 26).toISOString(),
-    },
-    {
-      id: "book_3",
-      customerName: "Lena Fischer",
-      item: "AI Ticket Tagging",
-      description: "A small AI feature to auto-tag support tickets by urgency.",
-      quantity: "1",
-      amount: "$15,000",
-      status: "delivered",
-      direction: "incoming" as Book["direction"],
-      updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 72).toISOString(),
-    },
-  ];
+export const seedBooks: Book[] = [
+  {
+    id: "book_1",
+    customerName: "Sarah Whitfield",
+    item: "Customer Portal Rebuild",
+    description: "Rebuilding our customer portal with better reporting and SSO.",
+    quantity: "1",
+    amount: "$40,000",
+    status: "delivered",
+    direction: "incoming" as Book["direction"],
+    updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 3).toISOString(),
+  },
+  {
+    id: "book_2",
+    customerName: "Michael Osei",
+    item: "AWS Migration",
+    description: "Full platform migration to AWS with a new event pipeline.",
+    quantity: "1",
+    amount: "$100,000+",
+    status: "conflict",
+    direction: "incoming" as Book["direction"],
+    updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 26).toISOString(),
+  },
+  {
+    id: "book_3",
+    customerName: "Lena Fischer",
+    item: "AI Ticket Tagging",
+    description: "A small AI feature to auto-tag support tickets by urgency.",
+    quantity: "1",
+    amount: "$15,000",
+    status: "delivered",
+    direction: "incoming" as Book["direction"],
+    updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 72).toISOString(),
+  },
+];
 
-  export const seedDecisions: Decision[] = [
+export const seedDecisions: Decision[] = [
   {
     id: "1",
     director: "yes",
     manager: "yes",
     lead: "yes",
     type: "purchase of 100 macBook pc",
-    status: "done"
+    status: "done",
   },
   {
     id: "2",
@@ -459,7 +440,7 @@ export const seedTasks: Task[] = [
     manager: "yes",
     lead: "no",
     type: "payment of goods supply",
-    status: "cancelled"
+    status: "cancelled",
   },
   {
     id: "3",
@@ -467,7 +448,7 @@ export const seedTasks: Task[] = [
     manager: "yes",
     lead: "yes",
     type: "payment of network",
-    status: "Pending"
+    status: "Pending",
   },
 ];
 
@@ -479,7 +460,7 @@ export const seedRoleClarity: RoleClarity[] = [
     coreResponsibility: "Generate leads and close deals",
     ReportTo: "Sales Manager",
     keyKpi: "Number of deals closed",
-    status: "done"
+    status: "done",
   },
   {
     id: "2",
@@ -488,7 +469,7 @@ export const seedRoleClarity: RoleClarity[] = [
     coreResponsibility: "Develop and maintain software applications",
     ReportTo: "Engineering Manager",
     keyKpi: "Code quality and performance",
-    status: "done"
+    status: "done",
   },
   {
     id: "3",
@@ -497,19 +478,34 @@ export const seedRoleClarity: RoleClarity[] = [
     coreResponsibility: "Create and execute marketing campaigns",
     ReportTo: "Marketing Manager",
     keyKpi: "Campaign effectiveness and ROI",
-    status: "done"
+    status: "done",
   },
 ];
 
 export const seedFooter: FooterSettings = {
   logoUrl: "",
   description:
-    "Nexlayer is a product engineering studio that designs, builds and scales software for growing companies.",
+    "Mellon Strata Core is a product engineering studio that designs, builds and scales software for growing companies.",
   copyrightYear: new Date().getFullYear(),
   socialLinks: [
-    { id: "soc_1", platform: "Twitter", icon: "twitter", url: "https://twitter.com/nexlayer" },
-    { id: "soc_2", platform: "LinkedIn", icon: "linkedin", url: "https://linkedin.com/company/nexlayer" },
-    { id: "soc_3", platform: "GitHub", icon: "github", url: "https://github.com/nexlayer" },
+    {
+      id: "soc_1",
+      platform: "Twitter",
+      icon: "twitter",
+      url: "https://twitter.com/nexlayer",
+    },
+    {
+      id: "soc_2",
+      platform: "LinkedIn",
+      icon: "linkedin",
+      url: "https://linkedin.com/company/nexlayer",
+    },
+    {
+      id: "soc_3",
+      platform: "GitHub",
+      icon: "github",
+      url: "https://github.com/nexlayer",
+    },
   ],
   companyLinks: [
     { id: "co_1", label: "About", href: "/about" },
@@ -522,7 +518,7 @@ export const seedFooter: FooterSettings = {
     { id: "sv_3", label: "AI & Automation", href: "/services/ai-automation" },
   ],
   contactLinks: [
-    { id: "ct_1", label: "hello@nexlayer.example", href: "mailto:hello@nexlayer.example" },
+    { id: "ct_1", label: "hello@melloncore.com", href: "mailto:hello@melloncore.com" },
     { id: "ct_2", label: "+1 (555) 019-2044", href: "tel:+15550192044" },
   ],
 };
@@ -532,7 +528,7 @@ export const seedAppearance: AppearanceSettings = { ...DEFAULT_APPEARANCE };
 export const seedUser: AdminUser = {
   id: "user_1",
   name: "Maren Okafor",
-  email: "admin@nexlayer.example",
+  email: "admin@melloncore.com",
   role: "owner",
 };
 

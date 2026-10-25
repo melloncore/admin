@@ -11,8 +11,8 @@ import { FormField, Input } from "@/components/ui/Field";
 export default function LoginPage() {
   const { login } = useAuth();
   const router = useRouter();
-  const [email, setEmail] = useState("admin@nexlayer.example");
-  const [password, setPassword] = useState("nexlayer123");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -37,11 +37,16 @@ export default function LoginPage() {
           <span className="mb-3 flex h-11 w-11 items-center justify-center rounded-xl bg-brand-700 text-white">
             <Layers size={20} />
           </span>
-          <h1 className="font-display text-xl font-semibold text-ink">Nexlayer Admin</h1>
+          <h1 className="font-display text-xl font-semibold text-ink">
+            Mellon Strata Core Admin
+          </h1>
           <p className="mt-1 text-sm text-ink-muted">Sign in to manage the site</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4 rounded-xl border border-line bg-white p-6 shadow-soft">
+        <form
+          onSubmit={handleSubmit}
+          className="space-y-4 rounded-xl border border-line bg-white p-6 shadow-soft"
+        >
           {error && (
             <p className="rounded-lg border border-coral-200 bg-coral-50 px-3 py-2 text-sm text-coral-700">
               {error}
@@ -93,9 +98,6 @@ export default function LoginPage() {
           <Link href="/signup" className="font-medium text-brand-700 hover:underline">
             Sign up
           </Link>
-        </p>
-        <p className="mt-6 text-center text-xs text-ink-muted">
-          Demo credentials: admin@nexlayer.example / nexlayer123
         </p>
       </div>
     </div>

@@ -1,22 +1,15 @@
 "use client";
 
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useState,
-  type ReactNode,
-} from "react";
+import { createContext, useCallback, useContext, useEffect, type ReactNode } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { AdminUser } from "@/types";
-import { readStorage, writeStorage, clearStorage } from "@/lib/utils/storage";
-import { generateId } from "@/lib/utils/id";
+import { apiRequest, ApiError } from "@/lib/api/http";
 
-interface StoredAccount {
+interface BackendUser {
   id: string;
-  name: string;
   email: string;
-  password: string;
+  name: string | null;
+  role: "ADMIN" | "STAFF";
 }
 
 interface AuthContextValue {
@@ -29,123 +22,198 @@ interface AuthContextValue {
     email: string,
     password: string,
   ) => Promise<{ ok: boolean; error?: string }>;
-  logout: () => void;
+  logout: () => Promise<void>;
   changePassword: (
     currentPassword: string,
     newPassword: string,
   ) => Promise<{ ok: boolean; error?: string }>;
-  updateProfile: (data: Partial<AdminUser>) => void;
+  updateProfile: (data: Partial<AdminUser>) => Promise<{ ok: boolean; error?: string }>;
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
-const ACCOUNTS_KEY = "accounts";
-const SESSION_KEY = "session";
-
-function seedDefaultAccount(): StoredAccount[] {
-  const existing = readStorage<StoredAccount[]>(ACCOUNTS_KEY, []);
-  if (existing.length > 0) return existing;
-  const seeded: StoredAccount[] = [
-    {
-      id: "user_1",
-      name: "Maren Okafor",
-      email: "admin@nexlayer.example",
-      password: "nexlayer123",
-    },
-  ];
-  writeStorage(ACCOUNTS_KEY, seeded);
-  return seeded;
+function mapUser(user: BackendUser): AdminUser {
+  return {
+    id: user.id,
+    name: user.name || user.email,
+    email: user.email,
+    role: user.role === "ADMIN" ? "owner" : "editor",
+  };
 }
 
-function delay(ms = 300) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
+async function getCurrentUser(): Promise<AdminUser> {
+  const response = await apiRequest<{ user: BackendUser }>("/auth/me");
+  return mapUser(response.user);
+}
+
+async function initializeSession(): Promise<AdminUser | null> {
+  try {
+    return await getCurrentUser();
+  } catch (error) {
+    if (!(error instanceof ApiError) || error.status !== 401) throw error;
+  }
+
+  try {
+    await apiRequest("/auth/refresh", { method: "POST" });
+    return await getCurrentUser();
+  } catch (error) {
+    if (error instanceof ApiError && error.status === 401) return null;
+    throw error;
+  }
+}
+
+function errorMessage(error: unknown): string {
+  return error instanceof Error
+    ? error.message
+    : "Something went wrong. Please try again.";
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<AdminUser | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const queryClient = useQueryClient();
+  const userQueryKey = ["auth", "current-user"];
+  const userQuery = useQuery({
+    queryKey: userQueryKey,
+    queryFn: initializeSession,
+    retry: false,
+  });
+  const user = userQuery.data ?? null;
 
   useEffect(() => {
-    const session = readStorage<AdminUser | null>(SESSION_KEY, null);
-    setUser(session);
-    setIsLoading(false);
-  }, []);
+    if (userQuery.error)
+      console.error("Unable to restore admin session:", userQuery.error);
+  }, [userQuery.error]);
 
-  const login = useCallback(async (email: string, password: string) => {
-    await delay();
-    const accounts = seedDefaultAccount();
-    const account = accounts.find(
-      (a) => a.email.toLowerCase() === email.trim().toLowerCase(),
-    );
-    if (!account || account.password !== password) {
-      return { ok: false, error: "That email and password don't match our records." };
+  const loginMutation = useMutation({
+    mutationFn: async ({ email, password }: { email: string; password: string }) => {
+      await apiRequest("/auth/login", {
+        method: "POST",
+        body: JSON.stringify({ email: email.trim(), password }),
+      });
+      return getCurrentUser();
+    },
+    onSuccess: (currentUser) => queryClient.setQueryData(userQueryKey, currentUser),
+  });
+
+  const signupMutation = useMutation({
+    mutationFn: async ({
+      name,
+      email,
+      password,
+    }: {
+      name: string;
+      email: string;
+      password: string;
+    }) => {
+      await apiRequest("/auth/bootstrap", {
+        method: "POST",
+        body: JSON.stringify({ name: name.trim(), email: email.trim(), password }),
+      });
+      await apiRequest("/auth/login", {
+        method: "POST",
+        body: JSON.stringify({ email: email.trim(), password }),
+      });
+      return getCurrentUser();
+    },
+    onSuccess: (currentUser) => queryClient.setQueryData(userQueryKey, currentUser),
+  });
+
+  const logoutMutation = useMutation({
+    mutationFn: () => apiRequest("/auth/logout", { method: "POST" }),
+    onSettled: () => queryClient.setQueryData(userQueryKey, null),
+  });
+
+  const passwordMutation = useMutation({
+    mutationFn: ({
+      currentPassword,
+      newPassword,
+    }: {
+      currentPassword: string;
+      newPassword: string;
+    }) =>
+      apiRequest("/auth/password", {
+        method: "PATCH",
+        body: JSON.stringify({ currentPassword, newPassword }),
+      }),
+  });
+
+  const profileMutation = useMutation({
+    mutationFn: async (name: string) => {
+      const response = await apiRequest<{ user: BackendUser }>("/auth/profile", {
+        method: "PATCH",
+        body: JSON.stringify({ name: name.trim() }),
+      });
+      return mapUser(response.user);
+    },
+    onSuccess: (currentUser) => queryClient.setQueryData(userQueryKey, currentUser),
+  });
+  const loginAsync = loginMutation.mutateAsync;
+  const signupAsync = signupMutation.mutateAsync;
+  const logoutAsync = logoutMutation.mutateAsync;
+  const changePasswordAsync = passwordMutation.mutateAsync;
+  const updateProfileAsync = profileMutation.mutateAsync;
+
+  const login = useCallback(
+    async (email: string, password: string) => {
+      try {
+        await loginAsync({ email, password });
+        return { ok: true };
+      } catch (error) {
+        return { ok: false, error: errorMessage(error) };
+      }
+    },
+    [loginAsync],
+  );
+
+  const signup = useCallback(
+    async (name: string, email: string, password: string) => {
+      try {
+        await signupAsync({ name, email, password });
+        return { ok: true };
+      } catch (error) {
+        return { ok: false, error: errorMessage(error) };
+      }
+    },
+    [signupAsync],
+  );
+
+  const logout = useCallback(async () => {
+    try {
+      await logoutAsync();
+    } catch (error) {
+      console.error("Unable to revoke the admin session:", error);
     }
-    const sessionUser: AdminUser = {
-      id: account.id,
-      name: account.name,
-      email: account.email,
-      role: "owner",
-    };
-    writeStorage(SESSION_KEY, sessionUser);
-    setUser(sessionUser);
-    return { ok: true };
-  }, []);
-
-  const signup = useCallback(async (name: string, email: string, password: string) => {
-    await delay();
-    const accounts = seedDefaultAccount();
-    if (accounts.some((a) => a.email.toLowerCase() === email.trim().toLowerCase())) {
-      return { ok: false, error: "An account with that email already exists." };
-    }
-    const account: StoredAccount = { id: generateId("user"), name, email, password };
-    writeStorage(ACCOUNTS_KEY, [...accounts, account]);
-    const sessionUser: AdminUser = {
-      id: account.id,
-      name: account.name,
-      email: account.email,
-      role: "editor",
-    };
-    writeStorage(SESSION_KEY, sessionUser);
-    setUser(sessionUser);
-    return { ok: true };
-  }, []);
-
-  const logout = useCallback(() => {
-    clearStorage(SESSION_KEY);
-    setUser(null);
-  }, []);
+  }, [logoutAsync]);
 
   const changePassword = useCallback(
     async (currentPassword: string, newPassword: string) => {
-      await delay();
-      if (!user) return { ok: false, error: "You need to be signed in." };
-      const accounts = seedDefaultAccount();
-      const index = accounts.findIndex((a) => a.id === user.id);
-      if (index === -1 || accounts[index].password !== currentPassword) {
-        return { ok: false, error: "Your current password is incorrect." };
+      try {
+        await changePasswordAsync({ currentPassword, newPassword });
+        return { ok: true };
+      } catch (error) {
+        return { ok: false, error: errorMessage(error) };
       }
-      accounts[index] = { ...accounts[index], password: newPassword };
-      writeStorage(ACCOUNTS_KEY, accounts);
-      return { ok: true };
     },
-    [user],
+    [changePasswordAsync],
   );
 
   const updateProfile = useCallback(
-    (data: Partial<AdminUser>) => {
-      if (!user) return;
-      const next = { ...user, ...data };
-      writeStorage(SESSION_KEY, next);
-      setUser(next);
+    async (data: Partial<AdminUser>) => {
+      if (!data.name) return { ok: false, error: "A name is required." };
+      try {
+        await updateProfileAsync(data.name);
+        return { ok: true };
+      } catch (error) {
+        return { ok: false, error: errorMessage(error) };
+      }
     },
-    [user],
+    [updateProfileAsync],
   );
 
   return (
     <AuthContext.Provider
       value={{
         user,
-        isLoading,
+        isLoading: userQuery.isLoading,
         isAuthenticated: !!user,
         login,
         signup,

@@ -1,14 +1,7 @@
 import { readStorage, writeStorage } from "@/lib/utils/storage";
 import { generateId } from "@/lib/utils/id";
 
-/**
- * Creates a small async CRUD client backed by localStorage.
- *
- * This is the seam for a future real API: every function here returns a
- * Promise already, so swapping the body for a `fetch("/api/...")` call is a
- * one-file change per domain — nothing that calls these functions needs to
- * change.
- */
+/** Legacy localStorage adapter retained for tests and any remaining demo-only data. */
 export function createCollectionApi<T extends { id: string }>(
   storageKey: string,
   seed: T[],
@@ -67,10 +60,10 @@ export function createCollectionApi<T extends { id: string }>(
     return delay(next);
   }
 
-  return { list, get, create, update, remove, reorder, readAll, writeAll };
+  return { storageKey, list, get, create, update, remove, reorder, readAll, writeAll };
 }
 
-/** For single-object "settings" style resources (hero, about, footer, ...). */
+/** Legacy localStorage adapter for single-object settings. */
 export function createSettingsApi<T>(storageKey: string, seed: T, latencyMs = 150) {
   function delay<R>(value: R): Promise<R> {
     return new Promise((resolve) => setTimeout(() => resolve(value), latencyMs));
@@ -92,5 +85,5 @@ export function createSettingsApi<T>(storageKey: string, seed: T, latencyMs = 15
     return delay(data);
   }
 
-  return { get, update, replace };
+  return { storageKey, get, update, replace };
 }

@@ -14,7 +14,7 @@ export default function SettingsPage() {
   const { showToast } = useToast();
 
   const [name, setName] = useState(user?.name ?? "");
-  const [email, setEmail] = useState(user?.email ?? "");
+  const [email] = useState(user?.email ?? "");
   const [isSavingProfile, setIsSavingProfile] = useState(false);
 
   const [currentPassword, setCurrentPassword] = useState("");
@@ -23,11 +23,15 @@ export default function SettingsPage() {
   const [passwordError, setPasswordError] = useState<string | null>(null);
   const [isSavingPassword, setIsSavingPassword] = useState(false);
 
-  const handleProfileSubmit = (e: FormEvent) => {
+  const handleProfileSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setIsSavingProfile(true);
-    updateProfile({ name, email });
+    const result = await updateProfile({ name });
     setIsSavingProfile(false);
+    if (!result.ok) {
+      showToast(result.error ?? "Could not update profile.", "error");
+      return;
+    }
     showToast("Profile updated.");
   };
 
@@ -60,7 +64,10 @@ export default function SettingsPage() {
 
   return (
     <div>
-      <PageHeader title="Account settings" description="Manage your admin profile and login." />
+      <PageHeader
+        title="Account settings"
+        description="Manage your admin profile and login."
+      />
 
       <div className="space-y-6">
         <Card>
@@ -70,20 +77,29 @@ export default function SettingsPage() {
               <div className="flex items-center gap-4">
                 <Avatar name={name || "Admin"} size="lg" />
                 <div>
-                  <p className="text-sm font-medium text-ink">{user?.role === "owner" ? "Owner" : "Editor"}</p>
-                  <p className="text-xs text-ink-muted">Role is managed by the account owner</p>
+                  <p className="text-sm font-medium text-ink">
+                    {user?.role === "owner" ? "Owner" : "Editor"}
+                  </p>
+                  <p className="text-xs text-ink-muted">
+                    Role is managed by the account owner
+                  </p>
                 </div>
               </div>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <FormField label="Full name" htmlFor="profile-name" required>
-                  <Input id="profile-name" value={name} onChange={(e) => setName(e.target.value)} required />
+                  <Input
+                    id="profile-name"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    required
+                  />
                 </FormField>
                 <FormField label="Email" htmlFor="profile-email" required>
                   <Input
                     id="profile-email"
                     type="email"
                     value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    disabled
                     required
                   />
                 </FormField>
@@ -116,7 +132,12 @@ export default function SettingsPage() {
                 />
               </FormField>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <FormField label="New password" htmlFor="new-password" required hint="At least 8 characters">
+                <FormField
+                  label="New password"
+                  htmlFor="new-password"
+                  required
+                  hint="At least 8 characters"
+                >
                   <Input
                     id="new-password"
                     type="password"
@@ -125,7 +146,11 @@ export default function SettingsPage() {
                     required
                   />
                 </FormField>
-                <FormField label="Confirm new password" htmlFor="confirm-password" required>
+                <FormField
+                  label="Confirm new password"
+                  htmlFor="confirm-password"
+                  required
+                >
                   <Input
                     id="confirm-password"
                     type="password"

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { Eye } from "lucide-react";
 import { PageHeader } from "@/components/ui/Feedback";
@@ -9,12 +10,14 @@ import { DataTable, type Column } from "@/components/ui/DataTable";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Select } from "@/components/ui/Field";
-import { useCollection } from "@/hooks/useCollection";
 import { leadsApi } from "@/lib/api";
 import { formatDate } from "@/lib/utils/date";
 import type { Lead, LeadStatus } from "@/types";
 
-const STATUS_TONE: Record<LeadStatus, "info" | "warning" | "success" | "neutral" | "danger"> = {
+const STATUS_TONE: Record<
+  LeadStatus,
+  "info" | "warning" | "success" | "neutral" | "danger"
+> = {
   new: "info",
   contacted: "warning",
   qualified: "success",
@@ -23,11 +26,15 @@ const STATUS_TONE: Record<LeadStatus, "info" | "warning" | "success" | "neutral"
 };
 
 export default function LeadsPage() {
-  const { items, isLoading } = useCollection<Lead>(leadsApi);
+  const leadsQuery = useQuery({ queryKey: ["leads"], queryFn: leadsApi.list });
+  const items = leadsQuery.data ?? [];
   const [statusFilter, setStatusFilter] = useState<LeadStatus | "all">("all");
 
-  const filtered = statusFilter === "all" ? items : items.filter((l) => l.status === statusFilter);
-  const sorted = [...filtered].sort((a, b) => +new Date(b.submittedAt) - +new Date(a.submittedAt));
+  const filtered =
+    statusFilter === "all" ? items : items.filter((l) => l.status === statusFilter);
+  const sorted = [...filtered].sort(
+    (a, b) => +new Date(b.submittedAt) - +new Date(a.submittedAt),
+  );
 
   const columns: Column<Lead>[] = [
     {
@@ -69,13 +76,22 @@ export default function LeadsPage() {
         }
       />
 
+      {leadsQuery.error && (
+        <p
+          role="alert"
+          className="mb-4 rounded-lg border border-coral-200 bg-coral-50 p-4 text-sm text-coral-700"
+        >
+          Leads could not be loaded: {leadsQuery.error.message}
+        </p>
+      )}
+
       <Card>
         <CardBody className="p-0">
           <DataTable
             columns={columns}
             rows={sorted}
             rowKey={(row) => row.id}
-            isLoading={isLoading}
+            isLoading={leadsQuery.isLoading}
             emptyTitle="No leads yet"
             emptyDescription="Submissions from the Contact page will show up here."
             actions={(row) => (

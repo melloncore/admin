@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import {
   Users,
@@ -24,10 +24,13 @@ import { PageHeader, StatCard, PageLoading } from "@/components/ui/Feedback";
 import { Card, CardHeader, CardBody } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { analyticsApi, leadsApi, conversationsApi } from "@/lib/api";
-import type { AnalyticsSnapshot, Lead, Conversation } from "@/types";
+import type { Lead } from "@/types";
 import { timeAgo } from "@/lib/utils/date";
 
-const STATUS_TONE: Record<Lead["status"], "info" | "warning" | "success" | "neutral" | "danger"> = {
+const STATUS_TONE: Record<
+  Lead["status"],
+  "info" | "warning" | "success" | "neutral" | "danger"
+> = {
   new: "info",
   contacted: "warning",
   qualified: "success",
@@ -36,23 +39,29 @@ const STATUS_TONE: Record<Lead["status"], "info" | "warning" | "success" | "neut
 };
 
 export default function DashboardPage() {
-  const [analytics, setAnalytics] = useState<AnalyticsSnapshot | null>(null);
-  const [leads, setLeads] = useState<Lead[]>([]);
-  const [conversations, setConversations] = useState<Conversation[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    Promise.all([analyticsApi.get(), leadsApi.list(), conversationsApi.list()]).then(
-      ([a, l, c]) => {
-        setAnalytics(a);
-        setLeads(l);
-        setConversations(c);
-        setIsLoading(false);
-      },
+  const dashboardQuery = useQuery({
+    queryKey: ["dashboard"],
+    queryFn: async () => {
+      const [analytics, leads, conversations] = await Promise.all([
+        analyticsApi.get(),
+        leadsApi.list(),
+        conversationsApi.list(),
+      ]);
+      return { analytics, leads, conversations };
+    },
+  });
+  if (dashboardQuery.isLoading) return <PageLoading />;
+  if (dashboardQuery.error) {
+    return (
+      <p
+        role="alert"
+        className="rounded-lg border border-coral-200 bg-coral-50 p-4 text-sm text-coral-700"
+      >
+        Dashboard could not be loaded: {dashboardQuery.error.message}
+      </p>
     );
-  }, []);
-
-  if (isLoading || !analytics) return <PageLoading />;
+  }
+  const { analytics, leads, conversations } = dashboardQuery.data!;
 
   const recentLeads = [...leads]
     .sort((a, b) => +new Date(b.submittedAt) - +new Date(a.submittedAt))
@@ -61,8 +70,12 @@ export default function DashboardPage() {
     .sort((a, b) => +new Date(b.lastMessageAt) - +new Date(a.lastMessageAt))
     .slice(0, 4);
   const consentTotal =
-    analytics.cookieConsent.accepted + analytics.cookieConsent.declined + analytics.cookieConsent.dismissed;
-  const acceptRate = Math.round((analytics.cookieConsent.accepted / consentTotal) * 100);
+    analytics.cookieConsent.accepted +
+    analytics.cookieConsent.declined +
+    analytics.cookieConsent.dismissed;
+  const acceptRate = consentTotal
+    ? Math.round((analytics.cookieConsent.accepted / consentTotal) * 100)
+    : 0;
 
   return (
     <div>
@@ -72,8 +85,18 @@ export default function DashboardPage() {
       />
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard label="Visitors (30d)" value={analytics.totalVisitors.toLocaleString()} icon={Users} tone="brand" />
-        <StatCard label="Page views (30d)" value={analytics.totalPageViews.toLocaleString()} icon={Eye} tone="coral" />
+        <StatCard
+          label="Visitors (30d)"
+          value={analytics.totalVisitors.toLocaleString()}
+          icon={Users}
+          tone="brand"
+        />
+        <StatCard
+          label="Page views (30d)"
+          value={analytics.totalPageViews.toLocaleString()}
+          icon={Eye}
+          tone="coral"
+        />
         <StatCard
           label="Top click"
           value={analytics.topClicks[0]?.clicks.toLocaleString() ?? "0"}
@@ -81,7 +104,12 @@ export default function DashboardPage() {
           icon={MousePointerClick}
           tone="teal"
         />
-        <StatCard label="Cookie accept rate" value={`${acceptRate}%`} icon={Cookie} tone="brand" />
+        <StatCard
+          label="Cookie accept rate"
+          value={`${acceptRate}%`}
+          icon={Cookie}
+          tone="brand"
+        />
       </div>
 
       <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-3">
@@ -90,7 +118,10 @@ export default function DashboardPage() {
             title="Traffic, last 14 days"
             description="Visitors vs. page views"
             actions={
-              <Link href="/analytics" className="flex items-center gap-1 text-sm font-medium text-brand-700">
+              <Link
+                href="/analytics"
+                className="flex items-center gap-1 text-sm font-medium text-brand-700"
+              >
                 Full analytics <ArrowRight size={14} />
               </Link>
             }
@@ -105,7 +136,11 @@ export default function DashboardPage() {
                       <stop offset="100%" stopColor="#2B3A6C" stopOpacity={0} />
                     </linearGradient>
                   </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#E3E6EF" vertical={false} />
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                    stroke="#E3E6EF"
+                    vertical={false}
+                  />
                   <XAxis
                     dataKey="date"
                     tickFormatter={(d) => d.slice(5)}
@@ -113,9 +148,17 @@ export default function DashboardPage() {
                     axisLine={false}
                     tickLine={false}
                   />
-                  <YAxis tick={{ fontSize: 11, fill: "#7B8194" }} axisLine={false} tickLine={false} />
+                  <YAxis
+                    tick={{ fontSize: 11, fill: "#7B8194" }}
+                    axisLine={false}
+                    tickLine={false}
+                  />
                   <Tooltip
-                    contentStyle={{ borderRadius: 8, borderColor: "#E3E6EF", fontSize: 12 }}
+                    contentStyle={{
+                      borderRadius: 8,
+                      borderColor: "#E3E6EF",
+                      fontSize: 12,
+                    }}
                   />
                   <Area
                     type="monotone"
@@ -138,7 +181,10 @@ export default function DashboardPage() {
             ) : (
               <ul className="divide-y divide-line">
                 {recentLeads.map((lead) => (
-                  <li key={lead.id} className="flex items-center justify-between gap-3 px-5 py-3">
+                  <li
+                    key={lead.id}
+                    className="flex items-center justify-between gap-3 px-5 py-3"
+                  >
                     <div className="min-w-0">
                       <p className="truncate text-sm font-medium text-ink">{lead.name}</p>
                       <p className="truncate text-xs text-ink-muted">{lead.company}</p>
@@ -149,7 +195,10 @@ export default function DashboardPage() {
               </ul>
             )}
             <div className="border-t border-line px-5 py-3">
-              <Link href="/leads" className="flex items-center gap-1 text-sm font-medium text-brand-700">
+              <Link
+                href="/leads"
+                className="flex items-center gap-1 text-sm font-medium text-brand-700"
+              >
                 <UserPlus size={14} /> View all leads
               </Link>
             </div>
@@ -163,9 +212,14 @@ export default function DashboardPage() {
           <CardBody className="p-0">
             <ul className="divide-y divide-line">
               {recentConversations.map((c) => (
-                <li key={c.id} className="flex items-center justify-between gap-3 px-5 py-3">
+                <li
+                  key={c.id}
+                  className="flex items-center justify-between gap-3 px-5 py-3"
+                >
                   <div className="min-w-0">
-                    <p className="truncate text-sm font-medium text-ink">{c.customerName}</p>
+                    <p className="truncate text-sm font-medium text-ink">
+                      {c.customerName}
+                    </p>
                     <p className="truncate text-xs text-ink-muted">{c.lastMessage}</p>
                   </div>
                   <div className="flex shrink-0 items-center gap-2">
@@ -174,13 +228,18 @@ export default function DashboardPage() {
                         {c.unreadCount}
                       </span>
                     )}
-                    <span className="text-xs text-ink-muted">{timeAgo(c.lastMessageAt)}</span>
+                    <span className="text-xs text-ink-muted">
+                      {timeAgo(c.lastMessageAt)}
+                    </span>
                   </div>
                 </li>
               ))}
             </ul>
             <div className="border-t border-line px-5 py-3">
-              <Link href="/messages" className="flex items-center gap-1 text-sm font-medium text-brand-700">
+              <Link
+                href="/messages"
+                className="flex items-center gap-1 text-sm font-medium text-brand-700"
+              >
                 <MessagesSquare size={14} /> Open inbox
               </Link>
             </div>
@@ -192,12 +251,17 @@ export default function DashboardPage() {
           <CardBody className="p-0">
             <ul className="divide-y divide-line">
               {analytics.topClicks.slice(0, 4).map((click) => (
-                <li key={click.id} className="flex items-center justify-between gap-3 px-5 py-3">
+                <li
+                  key={click.id}
+                  className="flex items-center justify-between gap-3 px-5 py-3"
+                >
                   <div className="min-w-0">
                     <p className="truncate text-sm font-medium text-ink">{click.label}</p>
                     <p className="truncate text-xs text-ink-muted">{click.page}</p>
                   </div>
-                  <span className="shrink-0 text-sm text-ink-soft">{click.clicks.toLocaleString()}</span>
+                  <span className="shrink-0 text-sm text-ink-soft">
+                    {click.clicks.toLocaleString()}
+                  </span>
                 </li>
               ))}
             </ul>
