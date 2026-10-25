@@ -6,16 +6,21 @@
   "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
   "assets": {
     "directory": ".open-next/assets",
-    "binding": "ASSETS"
+    "binding": "ASSETS",
   },
   "services": [
     {
       "binding": "WORKER_SELF_REFERENCE",
-      "service": "admin"
-    }
+      "service": "admin",
+    },
   ],
   "images": {
-    "binding": "IMAGES"
+    "binding": "IMAGES",
   },
-  "observability": { "enabled": true }
+  "observability": { "enabled": true },
+  "vars": {
+    "BACKEND_URL": "https://backend-pmz2.onrender.com",
+    "NEXT_PUBLIC_API_URL": "/api/v1",
+    "NEXT_PUBLIC_SITE_URL": "https://melloncore.com",
+  },
 }
