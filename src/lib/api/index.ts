@@ -59,6 +59,7 @@ export const decisionsApi = createBackendCollectionApi<Decision>("decisions");
 export const roleApi = createBackendCollectionApi<RoleClarity>("role-clarity");
 
 export { blogApi } from "./blog";
+export { advertsApi } from "./adverts";
 export { leadsApi } from "./leads";
 export { invitesApi } from "./invites";
 export { operationsApi } from "./operations";

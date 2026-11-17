@@ -1,6 +1,12 @@
 import { createBackendCollectionApi, createBackendSettingsApi } from "@/lib/api/content";
 
 const fetchMock = jest.fn();
+const configuredApiUrl = process.env.NEXT_PUBLIC_API_URL?.replace(/\/+$/, "");
+const apiRoot = configuredApiUrl
+  ? configuredApiUrl.endsWith("/api/v1")
+    ? configuredApiUrl
+    : `${configuredApiUrl}/api/v1`
+  : "/api/v1";
 
 describe("backend content APIs", () => {
   beforeEach(() => {
@@ -27,7 +33,7 @@ describe("backend content APIs", () => {
 
     await expect(api.list()).resolves.toEqual([{ id: "service-1", title: "Strategy" }]);
     expect(fetchMock).toHaveBeenCalledWith(
-      "/api/v1/admin/content/services",
+      `${apiRoot}/admin/content/services`,
       expect.objectContaining({ credentials: "include" }),
     );
   });
@@ -55,7 +61,7 @@ describe("backend content APIs", () => {
 
     await expect(api.list()).resolves.toEqual([{ id: "member-1", name: "Avery" }]);
     expect(fetchMock).toHaveBeenLastCalledWith(
-      "/api/v1/admin/content/team/import",
+      `${apiRoot}/admin/content/team/import`,
       expect.objectContaining({
         method: "POST",
         body: JSON.stringify({ items: [{ id: "member-1", name: "Avery" }] }),
@@ -91,7 +97,7 @@ describe("backend content APIs", () => {
       primaryColor: "#654321",
     });
     expect(fetchMock).toHaveBeenCalledWith(
-      "/api/v1/admin/settings/appearance",
+      `${apiRoot}/admin/settings/appearance`,
       expect.objectContaining({
         method: "PUT",
         body: JSON.stringify({ primaryColor: "#654321" }),

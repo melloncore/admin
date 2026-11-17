@@ -6,6 +6,7 @@ import {
   Users,
   Quote,
   Newspaper,
+  Megaphone,
   CalendarDays,
   MessagesSquare,
   Contact,
@@ -64,6 +65,7 @@ export const NAV_GROUPS: NavGroup[] = [
       { label: "Team", href: "/team", icon: Users },
       { label: "Testimonials", href: "/testimonials", icon: Quote },
       { label: "Blog", href: "/blog", icon: Newspaper },
+      { label: "Marketplace adverts", href: "/adverts", icon: Megaphone },
     ],
   },
   {

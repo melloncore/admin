@@ -5,7 +5,8 @@
   "description": "Mellon Strata Core admin dashboard with backend authentication, analytics, and project inquiry management.",
   "scripts": {
     "dev": "next dev -p 3001",
-    "build": "next build",
+    "build": "opennextjs-cloudflare build",
+    "build:next": "next build",
     "start": "next start",
     "lint": "next lint",
     "lint:fix": "next lint --fix",

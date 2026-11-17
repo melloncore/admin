@@ -7,11 +7,13 @@ Admin authentication, profile/password changes, analytics, inbound project
 inquiries, blog publishing, editorial content, settings, and admin-managed
 operations records use the backend API.
 Use `.env` for local development and `.env.production` for production builds.
-In local development, API calls use the same-origin `/api/v1` path and are
-proxied to `http://localhost:4000` by default (override with `BACKEND_URL` if
-the backend uses another port). Set `BACKEND_URL` in the production file; API
-calls are proxied by `next.config.mjs`. Configure backend CORS to allow the
-browser origin of the admin app.
+Set `NEXT_PUBLIC_API_URL` to `http://localhost:4000` locally or to
+`https://backend-pmz2.onrender.com/api/v1` in production. API requests go
+directly to that URL, so configure backend CORS to allow the browser origin of
+the admin app. The Render API hostname is cross-site from Melloncore, so
+browser third-party-cookie restrictions may block admin session cookies; a
+same-site API hostname such as `api.melloncore.com` is needed for reliable
+cookie authentication.
 The local admin runs at `http://localhost:3001`; it shares localhost cookies
 with the client and marketplace running on ports 3000 and 3002.
 

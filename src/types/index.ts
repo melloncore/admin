@@ -1,5 +1,18 @@
 export type BrandColor = "coral" | "teal" | "brand";
 
+export interface MarketplaceAdvert {
+  id: string;
+  title: string;
+  description: string | null;
+  imageUrl: string | null;
+  imageAlt: string | null;
+  linkUrl: string | null;
+  active: boolean;
+  sortOrder: number;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
 // ---------------------------------------------------------------------------
 // Hero
 // ---------------------------------------------------------------------------
